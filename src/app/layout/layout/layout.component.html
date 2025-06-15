@@ -1,0 +1,22 @@
+<div class="flex flex-column min-h-screen">
+
+  <header class="w-full">
+    <app-header></app-header>
+  </header>
+
+  <div class="flex flex-row flex-auto">
+
+    <div class="w-18rem border-right-1 border-200 surface-card">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <main  class="flex-auto p-4">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <footer class="w-full mt-auto">
+    <app-footer></app-footer>
+  </footer>
+
+</div>

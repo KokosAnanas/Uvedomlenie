@@ -1,0 +1,114 @@
+<!--<div class="blank">-->
+<!--  <div class="line"></div>-->
+<!--  <div class="organizationName">-->
+<!--    (наименование организации, осуществляющей СК заказчика)-->
+<!--  </div>-->
+<!--  <div class="blank-name">-->
+<!--    УВЕДОМЛЕНИЕ-->
+<!--    О ВЫЯВЛЕННЫХ НАРУШЕНИЯХ № ___________-->
+<!--  </div>-->
+<!--  <div class="blank-date">-->
+<!--    «___» ______________ 20____ г.-->
+<!--  </div>-->
+<!--  <div class="blank-to">-->
+<!--    Кому:-->
+
+
+<!--    Копия:-->
+
+<!--  </div>-->
+
+
+<!--</div>-->
+
+<!-- контейнер нужен и для pdf-экспорта -->
+<section #printArea class="blank" [formGroup]="form">
+
+  <p class="org center">
+    <input formControlName="orgName" placeholder="наименование организации…" />
+  </p>
+  <div class="text-center">(наименование организации…)</div>
+
+  <h3 class="center mb-1">УВЕДОМЛЕНИЕ</h3>
+  <div class="center mt-1">О ВЫЯВЛЕННЫХ НАРУШЕНИЯХ № <input class="num" formControlName="notifNum" /></div>
+
+
+  <header class="center bold text-left">
+    <input class="no-underline" type="date" formControlName="notifDate" />
+  </header>
+
+  <div>
+    Кому:
+    <textarea formControlName="toWhom"></textarea>
+  </div>
+  <p>
+    Копия:
+    <textarea formControlName="copyTo"></textarea>
+  </p>
+
+  <p>
+    Мною,
+    <textarea formControlName="specialist"></textarea>
+  </p>
+  <p>
+    в присутствии
+    <textarea formControlName="present"></textarea>
+  </p>
+  <p>
+    на объекте
+    <textarea formControlName="objectName"></textarea>
+  </p>
+  <p>
+    в ходе выполнения
+    <textarea formControlName="workType"></textarea>
+    работ
+  </p>
+
+  <!-- Таблица нарушений -->
+  <table class="violations">
+    <thead>
+    <tr>
+      <th>№ п/п</th>
+      <th>Место / Элемент / Предмет нарушения</th>
+      <th>НД (пункт)</th>
+      <th>Срок</th>
+      <th>Примечание</th>
+    </tr>
+    </thead>
+    <tbody formArrayName="violations">
+    <tr *ngFor="let v of violations.controls; let i = index" [formGroupName]="i">
+      <td>{{ i + 1 }}</td>
+      <td>
+        <textarea formControlName="place" placeholder="Место"></textarea>
+        <textarea formControlName="element" placeholder="Элемент"></textarea>
+        <textarea formControlName="subject" placeholder="Предмет"></textarea>
+      </td>
+      <td><textarea formControlName="norm"></textarea></td>
+      <td><input type="date" formControlName="deadline" /></td>
+      <td><textarea formControlName="note"></textarea></td>
+    </tr>
+    </tbody>
+  </table>
+  <button type="button" class="no-print" (click)="addViolation()">+ ещё нарушение</button>
+
+  <p>
+    В связи с тем, что выявленные нарушения ведут к снижению качества работ и
+    уровня безопасности объектов ПАО «Газпром», необходимо:
+    <textarea formControlName="actions"></textarea>
+  </p>
+
+  <p>
+    Контакты для ответа:
+    <textarea formControlName="contacts"></textarea>
+  </p>
+
+
+</section>
+
+<!-- --- КНОПКИ --- -->
+<footer class="actions no-print">
+  <button type="button" (click)="saveToDb()" [disabled]="form.invalid">Сохранить в БД</button>
+  <button type="button" (click)="saveAsDocx()" [disabled]="form.invalid">Скачать DOCX</button>
+  <button type="button" (click)="saveAsPdf()" [disabled]="form.invalid">Скачать PDF</button>
+  <button type="button" (click)="print()" [disabled]="form.invalid">Распечатать</button>
+</footer>

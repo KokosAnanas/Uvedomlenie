@@ -1,1 +1,48 @@
-<p>notice works!</p>
+<!-- выводим именно ту часть, что пойдёт в PDF/печать -->
+<div class="notice" #printRoot>
+  <form [formGroup]="f" class="notice-form">
+    <table class="blank">
+      <!-- Шапка -->
+      <tr><td colspan="4" class="org"><input formControlName="org" /></td></tr>
+      <tr><td colspan="4" class="title">УВЕДОМЛЕНИЕ</td></tr>
+      <tr>
+        <td colspan="4" class="subtitle">
+          О ВЫЯВЛЕННЫХ НАРУШЕНИЯХ №
+          <input class="num" formControlName="num" />
+        </td>
+      </tr>
+
+      <!-- Получатели -->
+      <tr><td class="lbl">Кому:</td><td colspan="3"><input formControlName="to" /></td></tr>
+      <tr><td class="lbl">Копия:</td><td colspan="3"><input formControlName="copy" /></td></tr>
+
+      <!-- Дата -->
+      <tr>
+        <td colspan="4" class="date">
+          «<input class="day" formControlName="day" />»
+          <input class="month" formControlName="month" />
+          <input class="year" formControlName="year" /> г.
+        </td>
+      </tr>
+
+      <!-- Основная текстовая часть -->
+      <tr>
+        <td colspan="4"><textarea rows="6" formControlName="body"></textarea></td>
+      </tr>
+
+      <!-- Подписи -->
+      <tr>
+        <td colspan="4" class="sign">
+          Подпись ССК: ______________________
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+
+<!-- Кнопки действий -->
+<div class="actions">
+  <button type="button" (click)="saveDocx()">Сохранить в DOCX</button>
+  <button type="button" (click)="savePdf()">Сохранить в PDF</button>
+  <button type="button" (click)="print()">Распечатать</button>
+</div>

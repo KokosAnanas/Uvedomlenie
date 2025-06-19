@@ -1,26 +1,21 @@
-import { Component } from '@angular/core';
-import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
-import {AutorizationComponent} from '../autorization/autorization.component';
-import {RegistrationComponent} from '../registration/registration.component';
-import {Toast} from 'primeng/toast';
-import {MessageService} from 'primeng/api';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { RegistrationComponent } from "../registration/registration.component";
+import { TabsModule } from 'primeng/tabs';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import {AuthorizationComponent} from '../authorization/authorization.component';
 
 @Component({
   selector: 'app-auth',
-  imports: [
-    Tabs,
-    TabList,
-    Tab,
-    TabPanels,
-    AutorizationComponent,
-    TabPanel,
-    RegistrationComponent,
-    Toast
-  ],
+  imports: [AuthorizationComponent, RegistrationComponent, TabsModule, Toast],
   providers: [MessageService],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss'
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit, OnDestroy {
+
+  ngOnInit(): void { }
+
+  ngOnDestroy(): void { }
 
 }

@@ -1,8 +1,15 @@
-export interface NotificationViolation {
-  place:    string;   // место нарушения
-  element:  string;   // элемент конструкции
-  subject:  string;   // предмет нарушения
-  norm:     string;   // норматив, пункт
-  deadline: string;   // срок устранения (ISO-дата)
-  note:     string;   // примечание
+import {FormControl} from '@angular/forms';
+
+export interface INotificationViolation {
+  place: string;
+  element: string;
+  subject: string;
+  norm: string;
+  deadline: string;
+  note: string;
 }
+
+// каждая клетка таблицы — FormControl<string>
+export type INotificationViolationForm = {
+  [K in keyof INotificationViolation]: FormControl<string>;
+};

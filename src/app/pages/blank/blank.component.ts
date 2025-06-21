@@ -14,7 +14,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { saveAs } from 'file-saver';
 import html2pdf from 'html2pdf.js';
@@ -27,66 +27,63 @@ import {
   Table,
   TableCell,
   TableRow,
-  TextRun,
+  TextRun, UnderlineType, VerticalAlign,
   WidthType,
 } from 'docx';
 import { NotificationService } from '../../services/notification.service';
+import {INotificationViolation, INotificationViolationForm} from '../../interfaces/notification';
+import {DatePicker} from 'primeng/datepicker';
+import {InputText} from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext';
+import {TextareaModule} from 'primeng/textarea';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Button} from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
+import {ButtonGroupModule} from 'primeng/buttongroup';
 
-/* ─────────────── Типы формы ─────────────── */
-export interface NotificationViolationModel {
-  place: string;
-  element: string;
-  subject: string;
-  norm: string;
-  deadline: string;
-  note: string;
-}
-
-// каждая клетка таблицы — FormControl<string>
-export type NotificationViolationForm = {
-  [K in keyof NotificationViolationModel]: FormControl<string>;
-};
-
-/* ─────────────── Компонент ─────────────── */
+/* ------------- Компонент --------------- */
 @Component({
   selector: 'app-blank',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule,
+    HttpClientModule, DatePicker, InputTextModule, InputText,
+    TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule, Button],
   templateUrl: './blank.component.html',
   styleUrls: ['./blank.component.scss'],
 })
 export class BlankComponent {
-  /* — DI — */
+  /* --- DI --- */
   private fb: NonNullableFormBuilder = inject(FormBuilder).nonNullable;
   private api = inject(NotificationService);
 
-  /* — DOM — */
+  /* --- DOM --- */
   @ViewChild('printArea') printArea!: ElementRef<HTMLElement>;
 
-  /* ═══════════════ ОСНОВНАЯ ФОРМА ═══════════════ */
+  /* ============== ОСНОВНАЯ ФОРМА =================== */
   form = this.fb.group({
     orgName: [''],
     notifNum: [''],
     notifDate: [''],
-    toWhom: ['', Validators.required],
-    copyTo: ['', Validators.required],
+    toWhom: [''],
+    copyTo: [''],
     specialist: [''],
     present: [''],
     objectName: [''],
     workType: [''],
-    violations: this.fb.array<FormGroup<NotificationViolationForm>>([]),
+    violations: this.fb.array<FormGroup<INotificationViolationForm>>([]),
     actions: [''],
     contacts: [''],
+    // Validators.required
   });
 
-  /* ───── геттер для удобства *ngFor ───── */
-  get violations(): FormArray<FormGroup<NotificationViolationForm>> {
-    return this.form.get('violations') as FormArray<FormGroup<NotificationViolationForm>>;
+  /* --------- геттер для удобства *ngFor ------------ */
+  get violations(): FormArray<FormGroup<INotificationViolationForm>> {
+    return this.form.get('violations') as FormArray<FormGroup<INotificationViolationForm>>;
   }
 
-  /* ───── создаём группу‑нарушение ───── */
-  private createViolationGroup(): FormGroup<NotificationViolationForm> {
-    return this.fb.group<NotificationViolationForm>({
+  /* --------- создание группы‑нарушения ----------- */
+  private createViolationGroup(): FormGroup<INotificationViolationForm> {
+    return this.fb.group<INotificationViolationForm>({
       place: this.fb.control(''),
       element: this.fb.control(''),
       subject: this.fb.control(''),
@@ -100,7 +97,15 @@ export class BlankComponent {
     this.violations.push(this.createViolationGroup());
   }
 
-  /* ═══════════════ КНОПКИ ═══════════════ */
+  removeLastViolation(): void {
+    const last = this.violations.length - 1;
+    if (last >= 0) {
+      this.violations.removeAt(last);
+    }
+  }
+
+
+  /* ============ КНОПКИ ============== */
   async saveToDb() {
     if (this.form.invalid) return;
     await this.api.create(this.form.value);
@@ -126,12 +131,14 @@ export class BlankComponent {
     window.print();
   }
 
-  /* ─────────────── ВСПОМОГАТЕЛЬНОЕ ─────────────── */
+  /* ------------- ВСПОМОГАТЕЛЬНОЕ ---------------- */
   private fileName(ext: string) {
     return `Уведомление_${this.form.value.notifNum}.${ext.replace('.', '')}`;
   }
 
-  /* ─────────────── DOCX ─────────────── */
+  private datePipe = inject(DatePipe);
+
+  /* ----------- DOCX ---------------- */
   private readonly RU_MONTHS = [
     'января',
     'февраля',
@@ -156,7 +163,71 @@ export class BlankComponent {
   private buildDocx(): Document {
     const f = this.form.value;
 
-    /* —— Таблица нарушений —— */
+    /* ------------------------- Блок «Дата / Кому» на одной строке --------------------------------- */
+    const dateToWhomTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },   // таблица во всю ширину
+      borders: {                 // убираем все линии (делаем «невидимой»)
+        top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        insideVertical:   { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      },
+
+      rows: [
+        new TableRow({
+          children: [
+            /* ─── левая ячейка: дата ─── */
+            new TableCell({
+              verticalAlign: VerticalAlign.TOP,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  children: [
+                    new TextRun(this.formatRuDate(f.notifDate ?? '')),
+                  ],
+                }),
+              ],
+            }),
+
+            /* ─── правая ячейка: «Кому» ─── */
+            new TableCell({
+              verticalAlign: VerticalAlign.TOP,
+              width: { size: 50, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  children: [
+                    new TextRun({
+                      text: 'Кому: ',
+                      bold: true,
+                    }),
+                    new TextRun(String(f.toWhom)),
+                  ],
+                }),
+                new Paragraph({ text: ' ' }),
+
+                new Paragraph({
+                  alignment: AlignmentType.LEFT,
+                  children: [
+                    new TextRun({
+                      text: 'Копия: ',
+                      bold: true,
+                    }),
+                    new TextRun(String(f.copyTo)),
+                  ],
+                }),
+
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+
+    /* --- Таблица нарушений --- */
     const violationsTable = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -168,7 +239,7 @@ export class BlankComponent {
         insideVertical: { style: BorderStyle.SINGLE, size: 1 },
       },
       rows: [
-        /* — заголовок — */
+        /* --- заголовок --- */
         new TableRow({
           children: [
             this.headerCell('№\nп/п', 5),
@@ -181,20 +252,91 @@ export class BlankComponent {
             this.headerCell('Примечание', 10),
           ],
         }),
-        /* — строки из формы — */
-        ...(f.violations as NotificationViolationModel[]).map((v, i) =>
+        /* --- строки из формы --- */
+        ...(f.violations as INotificationViolation[]).map((v, i) =>
           new TableRow({
             children: [
-              new TableCell({ children: [new Paragraph(String(i + 1))] }),
               new TableCell({
+                verticalAlign: VerticalAlign.CENTER,
                 children: [
-                  new Paragraph(`Место: ${v.place}`),
-                  new Paragraph(`Элемент: ${v.element}`),
-                  new Paragraph(`Предмет: ${v.subject}`),
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [new TextRun(String(i + 1))],
+                  }),
                 ],
               }),
-              new TableCell({ children: [new Paragraph(v.norm)] }),
-              new TableCell({ children: [new Paragraph(v.deadline)] }),
+              new TableCell({
+                children: [
+
+                  new Paragraph({
+                    indent: { left: 400 },
+                    children: [
+                      new TextRun({
+                        text: 'Место нарушения:',
+                        italics: true,
+                        underline: { type: UnderlineType.SINGLE },
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.START,
+                    children: [ new TextRun(String(v.place)) ],
+                  }),
+
+                  new Paragraph({
+                    indent: { left: 400 },
+                    children: [
+                      new TextRun({
+                        text: 'Элемент нарушения:',
+                        italics: true,
+                        underline: { type: UnderlineType.SINGLE },
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.START,
+                    children: [ new TextRun(String(v.element)) ],
+                  }),
+
+                  new Paragraph({
+                    indent: { left: 400 },
+                    children: [
+                      new TextRun({
+                        text: 'Предмет нарушения:',
+                        italics: true,
+                        underline: { type: UnderlineType.SINGLE },
+                      }),
+                    ],
+                  }),
+                  new Paragraph({
+                    alignment: AlignmentType.START,
+                    children: [ new TextRun(String(v.subject)) ],
+                  }),
+
+                ],
+              }),
+              new TableCell({
+                verticalAlign: VerticalAlign.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [ new TextRun(v.norm) ],
+                  }),
+                ],
+              }),
+              new TableCell({
+                verticalAlign: VerticalAlign.CENTER,
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    children: [
+                      new TextRun(
+                        this.datePipe.transform(v.deadline, 'dd.MM.yyyy') ?? ''
+                      ),
+                    ],
+                  }),
+                ],
+              }),
               new TableCell({ children: [new Paragraph(v.note)] }),
             ],
           }),
@@ -202,30 +344,66 @@ export class BlankComponent {
       ],
     });
 
-    /* —— Документ —— */
+    /* --------------------------- Документ -------------------------------------------------------- */
     return new Document({
+      styles: {
+        default: {
+          document: {
+            /* run — настройки символов */
+            run: {
+              /* 12 pt = 24 half-points */
+              size: 24,
+              font: 'Times New Roman',
+            },
+          },
+        },
+      },
+
       sections: [
         {
-          /* поля страницы: 20 мм слева, 10 мм справа, 10 мм сверху/снизу */
-          properties: {                           //  ✅ корректное место
+          /* поля страницы: 20мм слева, 10мм справа, 10мм сверху/снизу */
+          properties: {
             page: {
-              margin: { left: 1134, right: 567, top: 567, bottom: 567 }, // 20 мм / 10 мм
+              margin: { left: 1134, right: 567, top: 567, bottom: 567 }, // 20 мм / 10 мм / 1 мм ≈ 56,7
             },
           },
           children: [
-            /* — шапка — */
+            /* --- шапка --- */
             new Paragraph({
               alignment: AlignmentType.CENTER,
+
+              /* одна сплошная линия вдоль всей строки */
+              border: {
+                bottom: {                         // нижняя граница параграфа
+                  style: BorderStyle.SINGLE,      // сплошная
+                  size: 6,                        // 6 half-points ≈ 0,75 pt
+                  color: 'auto',                  // чёрный по умолчанию
+                },
+              },
+
               children: [
-                new TextRun({ text: f.orgName, italics: true }),
+                new TextRun({ text: f.orgName }),
               ],
             }),
-            /* — Название документа — */
+
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [new TextRun({
+                text: '(наименование организации, осуществляющей СК заказчика)',
+                superScript: true,                   // текст надстрочный
+                italics: true,
+              })],
+            }),
+
+            new Paragraph({ text: ' ' }),
+
+            /* -- Название документа -- */
             new Paragraph({
               alignment: AlignmentType.CENTER,
               spacing: { before: 120, after: 60 },
               children: [new TextRun({ text: 'УВЕДОМЛЕНИЕ', bold: true })],
             }),
+
             new Paragraph({
               alignment: AlignmentType.CENTER,
               children: [
@@ -237,33 +415,36 @@ export class BlankComponent {
             }),
             new Paragraph({ text: ' ' }),
 
-            /* — Дата, Кому, Копия — */
+            /* ------------ Дата, Кому, Копия ----------------------------- */
+            dateToWhomTable,
+
+            new Paragraph({ text: ' ' }),
+
+            /* ---------------------- Присутствующие и объект ---------------------- */
+
             new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              children: [new TextRun(this.formatRuDate(f.notifDate ?? ''))],
+              indent: { firstLine: 567 },     // отступ 10 мм (567 twip)
+              children: [
+                new TextRun(
+                  `Мною, ${f.specialist}, в присутствии ${f.present}
+на объекте ${f.objectName} в ходе выполнения ${f.workType} работ
+выявлены следующие нарушения требований действующих нормативных
+документов, отступления от проектной документации:`
+                ),
+              ],
             }),
             new Paragraph({ text: ' ' }),
-            new Paragraph({ text: `Кому: ${f.toWhom}` }),
-            new Paragraph({ text: `Копия: ${f.copyTo}` }),
-            new Paragraph({ text: ' ' }),
 
-            /* — Присутствующие и объект — */
-            new Paragraph({ text: `Мною, ${f.specialist}` }),
-            new Paragraph({ text: `в присутствии ${f.present}` }),
-            new Paragraph({ text: `на объекте ${f.objectName}` }),
-            new Paragraph({ text: `в ходе выполнения ${f.workType} работ` }),
-            new Paragraph({ text: ' ' }),
-
-            /* — Таблица нарушений — */
+            /* ---------------------- Таблица нарушений -------------------------------- */
             violationsTable,
             new Paragraph({ text: ' ' }),
 
             /* — Действия — */
             new Paragraph({
               text:
-                'В связи с тем, что выявленные нарушения ведут к снижению качества работ и уровня безопасности объектов ПАО «Газпром», необходимо:',
+                `В связи с тем, что выявленные нарушения ведут к снижению качества работ и
+                уровня безопасности объектов ПАО «Газпром», необходимо: ${f.actions}`,
             }),
-            new Paragraph({ children: [new TextRun({ text: f.actions, bold: true })] }),
             new Paragraph({ text: ' ' }),
             new Paragraph({
               text: `После устранения нарушений прошу направить официальный ответ в ${f.orgName} на E-mail: ${f.contacts}`,
@@ -288,6 +469,7 @@ export class BlankComponent {
   /* ─────────────── util: Header Cell ─────────────── */
   private headerCell(text: string, widthPercentage: number): TableCell {
     return new TableCell({
+      verticalAlign: VerticalAlign.CENTER,
       width: { size: widthPercentage, type: WidthType.PERCENTAGE },
       children: [
         new Paragraph({

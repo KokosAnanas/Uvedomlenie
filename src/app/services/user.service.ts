@@ -19,7 +19,7 @@ export class UserService {
   }
 
   authUser(user: IUser): Observable<string> {
-    return this.http.post<string>(API.auth, user,);
+    return this.http.post<string>(API.auth(user.login), user,);
   }
 
   getUser(): IUser {

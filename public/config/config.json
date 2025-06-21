@@ -1,4 +1,7 @@
 {
 	"version": "1.0.0",
-	"rules": []
+	"rules": [],
+  "serverProtocol": "http",
+  "baseIndexHref": "/",
+  "useUserCard": true
 }

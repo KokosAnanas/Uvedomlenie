@@ -4,8 +4,8 @@ import { environment } from '../../../environments/environment.development';
 const serverIp = environment.apiUrl
 
 export const API = {
-	auth: `${serverIp}/auth`,
-	registration: `${serverIp}/register`,
+  auth: (login: string) => `${serverIp}/users/${login}`,
+	registration: `${serverIp}/users`,
 	tours: `${serverIp}/tours`,
 	tour: `${serverIp}/tour`,
 	config: `/config/config.json`,

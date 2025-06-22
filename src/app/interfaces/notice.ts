@@ -1,0 +1,50 @@
+import {FormArray, FormControl, FormGroup} from '@angular/forms';
+
+export interface INotice {
+  orgName:    string;
+  noticeNum:  string;
+  noticeDate: string;
+  toWhom:     string;
+  copyTo:     string;
+  specialist: string;
+  present:    string;
+  objectName: string;
+  workType:   string;
+  violations: INoticeViolation[];
+  actions:    string;
+  contacts:   string;
+}
+
+export interface INoticeViolation {
+  place: string;
+  element: string;
+  subject: string;
+  norm: string;
+  deadline: string;
+  note: string;
+}
+
+export type INoticeFormGroup = {
+  orgName:     FormControl<string>;
+  noticeNum:   FormControl<string>;
+  noticeDate:  FormControl<string>;          // ISO-строка
+  toWhom:      FormControl<string>;
+  copyTo:      FormControl<string>;
+  specialist:  FormControl<string>;
+  present:     FormControl<string>;
+  objectName:  FormControl<string>;
+  workType:    FormControl<string>;
+  violations:  FormArray<FormGroup<INoticeViolationForm>>;
+  actions:     FormControl<string>;
+  contacts:    FormControl<string>;
+};
+// каждая клетка таблицы — FormControl<string>
+export type INoticeViolationForm = {
+  [K in keyof INoticeViolation]: FormControl<string>;
+};
+
+export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'> {
+  noticeDate: string;
+  violations: INoticeViolation[];
+}
+

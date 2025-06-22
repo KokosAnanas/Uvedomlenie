@@ -6,10 +6,10 @@ const serverIp = environment.apiUrl
 export const API = {
   auth: (login: string) => `${serverIp}/users/${login}`,
 	registration: `${serverIp}/users`,
-	tours: `${serverIp}/tours`,
-	tour: `${serverIp}/tour`,
+	notices: `${serverIp}/notices`,
+	// notice: `${serverIp}/notice`,
 	config: `/config/config.json`,
-  nearestTours: `${serverIp}/nearestTours`,
+  nearestNotices: `${serverIp}/nearestNotices`,
   countries: `${serverIp}/countries`,    // test mistake
   countryByCode: 'https://restcountries.com/v3.1/alpha',
   getWeather: 'https://api.open-meteo.com/v1/forecast',

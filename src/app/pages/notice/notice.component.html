@@ -1,48 +1,194 @@
-<!-- выводим именно ту часть, что пойдёт в PDF/печать -->
-<div class="notice" #printRoot>
-  <form [formGroup]="f" class="notice-form">
-    <table class="blank">
-      <!-- Шапка -->
-      <tr><td colspan="4" class="org"><input formControlName="org" /></td></tr>
-      <tr><td colspan="4" class="title">УВЕДОМЛЕНИЕ</td></tr>
-      <tr>
-        <td colspan="4" class="subtitle">
-          О ВЫЯВЛЕННЫХ НАРУШЕНИЯХ №
-          <input class="num" formControlName="num" />
-        </td>
-      </tr>
 
-      <!-- Получатели -->
-      <tr><td class="lbl">Кому:</td><td colspan="3"><input formControlName="to" /></td></tr>
-      <tr><td class="lbl">Копия:</td><td colspan="3"><input formControlName="copy" /></td></tr>
+<div style="max-width:60rem;" #printArea class="shadow-4 p-5 max-w-60rem" [formGroup]="form">
 
-      <!-- Дата -->
-      <tr>
-        <td colspan="4" class="date">
-          «<input class="day" formControlName="day" />»
-          <input class="month" formControlName="month" />
-          <input class="year" formControlName="year" /> г.
-        </td>
-      </tr>
+  <div class="card flex justify-content-center">
+    <div class="flex flex-column gap-1 align-items-center">
+      <input pSize="small" class="mx-auto border-round-md w-full"
+             type="text" pInputText formControlName="orgName" />
+      <small id="username-help">наименование организации, осуществляющей СК заказчика</small>
+    </div>
+  </div>
 
-      <!-- Основная текстовая часть -->
-      <tr>
-        <td colspan="4"><textarea rows="6" formControlName="body"></textarea></td>
-      </tr>
+  <div class="text-center mt-5 mb-1 font-bold text-xl">УВЕДОМЛЕНИЕ</div>
+  <div class="text-center mt-1 mb-4 font-bold text-xl">
+    О ВЫЯВЛЕННЫХ НАРУШЕНИЯХ №
+      <input type="text" pInputText formControlName="noticeNum" />
+  </div>
 
-      <!-- Подписи -->
-      <tr>
-        <td colspan="4" class="sign">
-          Подпись ССК: ______________________
-        </td>
-      </tr>
-    </table>
-  </form>
+
+
+
+  <div class="flex justify-content-between align-items-start gap-3 mb-2">
+
+    <!-- левая колонка — дата -->
+    <header class="flex-grow-0 flex-shrink-0" style="flex-basis:30%">
+      <!--  PrimeNG DatePicker -->
+      <p-datepicker
+        formControlName="noticeDate"
+        [showIcon]="true"
+        dateFormat="dd.mm.yy"
+        inputClass="no-underline w-full"
+        class="w-full">
+      </p-datepicker>
+    </header>
+
+    <!-- правая колонка — «Кому» (+ переносы строк в textarea) -->
+    <div style="flex:1 1 70%">
+      <p-floatlabel variant="on">
+        <textarea pTextarea id="over_label" rows="3"
+                  cols="30" style="resize: none" class="w-full"
+                  formControlName="toWhom"></textarea>
+        <label for="on_label">Кому:</label>
+      </p-floatlabel>
+
+      <p-floatlabel variant="on">
+        <textarea pTextarea id="over_label" rows="3"
+                  cols="30" style="resize: none" class="w-full"
+                  formControlName="copyTo"></textarea>
+        <label for="on_label">Копия:</label>
+      </p-floatlabel>
+
+    </div>
+  </div>
+
+  <!----------------Текст уведомления------------------------------------>
+<div style="max-width:45rem;">
+  <div class="flex align-items-start w-full gap-2 mb-2">
+    <span class="align-self-start">Мною,&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="specialist"
+              class="flex-1 w-full"></textarea>
+  </div>
+
+  <div class="flex align-items-start w-full gap-2">
+    <span class="align-self-start">в присутствии,&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="present"
+              class="flex-1 w-full"></textarea>
+  </div>
+
+  <div class="flex align-items-start w-full gap-2 mt-2">
+    <span class="align-self-start">на объекте&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="objectName"
+              class="flex-1 w-full"></textarea>
+  </div>
+
+  <div class="flex align-items-start w-full gap-2 mt-2 mb-4">
+    <span class="align-self-start">в ходе выполнения&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="workType"
+              class="flex-1 w-full"></textarea>
+  </div>
 </div>
 
-<!-- Кнопки действий -->
-<div class="actions">
-  <button type="button" (click)="saveDocx()">Сохранить в DOCX</button>
-  <button type="button" (click)="savePdf()">Сохранить в PDF</button>
-  <button type="button" (click)="print()">Распечатать</button>
+
+  <!------------------- Таблица нарушений -------------------------->
+
+  <table class="violations w-full">
+    <thead>
+    <tr>
+      <th>№ п/п</th>
+      <th>Перечень выявленных нарушений</th>
+      <th>Наименование нормативного документа,<br>пункт, шифр проекта, лист</th>
+      <th>Предлагаемый<br>срок устранения</th>
+      <th>Примечание</th>
+    </tr>
+    </thead>
+
+    <tbody formArrayName="violations">
+    <tr *ngFor="let v of violations.controls; let i = index" [formGroupName]="i">
+      <!-- Номер -->
+      <td class="text-center align-top">{{ i + 1 }}</td>
+
+      <!-- Перечень нарушений -->
+      <td class="p-0">
+        <div class="violation-field">
+          <label class="violation-label">Место нарушения:</label>
+          <textarea pTextarea autoResize rows="1"
+                    formControlName="place" class="violation-input"></textarea>
+
+          <label class="violation-label">Элемент нарушения:</label>
+          <textarea pTextarea autoResize rows="1"
+                    formControlName="element" class="violation-input"></textarea>
+
+          <label class="violation-label">Предмет нарушения:</label>
+          <textarea pTextarea autoResize rows="2"
+                    formControlName="subject" class="violation-input"></textarea>
+        </div>
+      </td>
+
+      <!-- Нормативный документ -->
+      <td class="p-0">
+        <textarea pTextarea autoResize rows="3"
+                  formControlName="norm" class="violation-input"></textarea>
+      </td>
+
+      <!-- Срок -->
+      <td class="text-center">
+        <input pInputText type="date" formControlName="deadline"
+               class="border-0 outline-none text-center w-full" />
+      </td>
+
+      <!-- Примечание -->
+      <td class="p-0">
+        <textarea pTextarea autoResize rows="2"
+                  formControlName="note" class="violation-input"></textarea>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="card flex justify-center m-2">
+    <p-buttongroup>
+      <p-button (click)="addViolation()" label="Добавить нарушение"
+                icon="pi pi-plus" severity="secondary"
+                size="small"/>
+      <p-button (click)="removeLastViolation()" [disabled]="violations.length === 0"
+                label="Удалить" icon="pi pi-trash" severity="secondary"
+                size="small"/>
+    </p-buttongroup>
+  </div>
+
+  <!----------------------------------------------------------------------------->
+
+  <div class="flex flex-column align-items-start gap-2 w-full mb-2 mt-4">
+    <span class="align-self-start">В связи с тем, что выявленные нарушения ведут к снижению качества работ и
+    уровня безопасности объектов ПАО «Газпром», необходимо:&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="actions"
+              class="w-full"
+              style="max-width:40rem;"></textarea>
+  </div>
+
+  <div class="flex flex-column align-items-start gap-2 w-full mb-2">
+    <span class="align-self-start">В связи с тем, что выявленные нарушения ведут к снижению качества работ и
+    уровня безопасности объектов ПАО «Газпром», необходимо:&nbsp;</span>
+    <textarea pTextarea
+              autoResize="true"
+              rows="1"
+              formControlName="contacts"
+              class="w-full"
+              style="max-width:40rem;"></textarea>
+  </div>
+
+
 </div>
+
+<!-- --- КНОПКИ --- -->
+<footer class="actions no-print">
+  <button type="button" (click)="saveToDb()" [disabled]="form.invalid" class="m-3 p-3">Сохранить в БД</button>
+  <button type="button" (click)="saveAsDocx()" [disabled]="form.invalid" class="m-3 p-3">Скачать DOCX</button>
+  <button type="button" (click)="saveAsPdf()" [disabled]="form.invalid" class="m-3 p-3">Скачать PDF</button>
+  <button type="button" (click)="print()" [disabled]="form.invalid" class="m-3 p-3">Распечатать</button>
+</footer>

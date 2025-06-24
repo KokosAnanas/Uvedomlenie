@@ -1,80 +1,114 @@
 // src/app/pages/registry/registry.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Table } from 'primeng/table';                      // ✨ для filterGlobal
+import { Table } from 'primeng/table';
 import { TableModule } from 'primeng/table';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import {DatePipe, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
+import {
+  CommonModule,
+  DatePipe,
+  NgFor,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault,
+} from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { NoticeService } from '../../services/notice.service';
-import { INotice, RegistryRow } from '../../interfaces/notice';
+import {
+  INotice,
+  INoticeViolation,
+} from '../../interfaces/notice';
+import {StyleClass} from 'primeng/styleclass';
+
+type RegistryRow = INotice & INoticeViolation;
 
 @Component({
   standalone: true,
-  selector   : 'app-registry',
+  selector: 'app-registry',
   imports: [
-    TableModule, MultiSelectModule, ButtonModule, InputTextModule,
-    FormsModule, NgFor, NgSwitch, NgSwitchCase, DatePipe, NgSwitchDefault
+    CommonModule,
+    TableModule,
+    MultiSelectModule,
+    ButtonModule,
+    InputTextModule,
+    FormsModule,
+    NgFor,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    DatePipe,
+    StyleClass,
   ],
-  templateUrl: './registry.component.html'
+  templateUrl: './registry.component.html',
 })
 export class RegistryComponent implements OnInit {
+  @ViewChild('dt') table!: Table;
 
-  @ViewChild('dt') table!: Table;          // ссылка на p-table
+  notices: RegistryRow[] = [];
+  cols: { field: keyof RegistryRow; header: string }[] = [];
+  selectedColumns: { field: keyof RegistryRow; header: string }[] = [];
 
-  notices: INotice[] = [];
-  cols: any[] = [];
-  selectedColumns: any[] = [];
   first = 0;
-  rows  = 10;
+  rows = 10;
+  private groupedCols: Array<keyof RegistryRow> = [
+    'orgName', 'noticeNum', 'noticeDate', 'toWhom',
+    'copyTo', 'specialist', 'objectName', 'workType', 'actions'
+  ];
 
   constructor(private noticeApi: NoticeService) {}
 
   ngOnInit(): void {
-
-    /* ===== 15 столбцов из INotice + INoticeViolation ===== */
+    /* 15 колонок (INotice + INoticeViolation) */
     this.cols = [
-      { field: 'orgName'    , header: 'Организация'  },
-      { field: 'noticeNum'  , header: '№ уведомл.'   },
-      { field: 'noticeDate' , header: 'Дата'         },
-      { field: 'toWhom'     , header: 'Кому'         },
-      { field: 'copyTo'     , header: 'Копия'        },
-      { field: 'specialist' , header: 'Специалист'   },
-      { field: 'objectName' , header: 'Объект'       },
-      { field: 'workType'   , header: 'Вид работ'    },
-      { field: 'place'      , header: 'Место'        }, // ▼ из violations
-      { field: 'element'    , header: 'Элемент'      },
-      { field: 'subject'    , header: 'Предмет'      },
-      { field: 'norm'       , header: 'НД (пункт)'   },
-      { field: 'deadline'   , header: 'Срок'         },
-      { field: 'actions'    , header: 'Действия'     },
-      { field: 'note'       , header: 'Примечание'   }
+      { field: 'orgName', header: 'Организация' },
+      { field: 'noticeNum', header: '№ уведомл.' },
+      { field: 'noticeDate', header: 'Дата' },
+      { field: 'toWhom', header: 'Кому' },
+      { field: 'copyTo', header: 'Копия' },
+      { field: 'specialist', header: 'Специалист' },
+      { field: 'objectName', header: 'Объект' },
+      { field: 'workType', header: 'Вид работ' },
+      { field: 'place', header: 'Место' },
+      { field: 'element', header: 'Элемент' },
+      { field: 'subject', header: 'Предмет' },
+      { field: 'norm', header: 'НД (пункт)' },
+      { field: 'deadline', header: 'Срок' },
+      { field: 'actions', header: 'Действия' },
+      { field: 'note', header: 'Примечание' },
     ];
-    this.selectedColumns = this.cols.slice();
+    this.selectedColumns = [...this.cols];
 
-    /* ===== загрузка данных ===== */
-    this.noticeApi.getNotices().subscribe(data => {
-      /* разворачиваем violations, чтобы каждая строка = одно нарушение
-         и можно было применить pRowGroup rowSpan */
-      this.notices = data.flatMap((n: INotice) =>
+    /* Загрузка и «расплющивание» нарушений */
+    this.noticeApi.getNotices().subscribe((data: INotice[]) => {
+      this.notices = data.flatMap((n) =>
         n.violations?.length
-          ? n.violations.map(v => ({ ...n, ...v })) // place, element… deadline, note
-          : [{ ...n }]
+          ? n.violations.map((v) => ({ ...n, ...v }))
+          : [{ ...n } as RegistryRow],
       );
     });
   }
 
-  /* ---------- программный пагинатор ---------- */
-  // next()  { this.first = Math.min(this.first + this.rows, this.notices.length); }
-  // prev()  { this.first = Math.max(this.first - this.rows, 0); }
-  // reset() { this.first = 0; }
-  // isLastPage()  { return this.first + this.rows >= this.notices.length; }
-  // isFirstPage() { return this.first === 0; }
-
-  /* ---------- безопасный глобальный фильтр ---------- */
+  /** Глобальный фильтр */
   onGlobalFilter(e: Event) {
     const value = (e.target as HTMLInputElement | null)?.value ?? '';
     this.table.filterGlobal(value, 'contains');
+  }
+
+  /** Показать ли ячейку? */
+  displayCell(field: keyof RegistryRow, firstOfGroup: boolean) {
+    return !this.groupedCols.includes(field) || firstOfGroup;
+  }
+
+  /** Какой rowspan ставить */
+  getRowspan(
+    field: keyof RegistryRow,
+    firstOfGroup: boolean,
+    span?: number
+  ): string | null {
+    return this.groupedCols.includes(field) && firstOfGroup && span
+      ? String(span)
+      : null;
   }
 }

@@ -20,7 +20,6 @@ export class RegistrationComponent implements OnInit  {
   login: string = '';
   password: string = '';
   repeatPassword: string = '';
-  cardNamber: string = '';
   email: string = '';
   isRemember: boolean = false;
   labelText = 'Сохранить пользователя в хранилище';

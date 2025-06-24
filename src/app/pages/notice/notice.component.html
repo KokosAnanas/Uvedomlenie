@@ -20,7 +20,7 @@
 
   <div class="flex justify-content-between align-items-start gap-3 mb-2">
 
-    <!-- левая колонка — дата -->
+    <!---------------------- левая колонка - дата ------------------------------->
     <header class="flex-grow-0 flex-shrink-0" style="flex-basis:30%">
       <!--  PrimeNG DatePicker -->
       <p-datepicker
@@ -80,7 +80,7 @@
               class="flex-1 w-full"></textarea>
   </div>
 
-  <div class="flex align-items-start w-full gap-2 mt-2 mb-4">
+  <div class="flex align-items-start w-full gap-2 mt-2 mb-1">
     <span class="align-self-start">в ходе выполнения&nbsp;</span>
     <textarea pTextarea
               autoResize="true"
@@ -89,9 +89,13 @@
               class="flex-1 w-full"></textarea>
   </div>
 </div>
+  <div class="align-self-start mb-4">
+    выявлены следующие нарушения требований действующих нормативных документов, отступления от проектной документации:
+  </div>
 
 
-  <!------------------- Таблица нарушений -------------------------->
+
+  <!--------------------------- Таблица нарушений ----------------------------------------------->
 
   <table class="violations w-full">
     <thead>
@@ -109,7 +113,7 @@
       <!-- Номер -->
       <td class="text-center align-top">{{ i + 1 }}</td>
 
-      <!-- Перечень нарушений -->
+      <!------------- Перечень нарушений --------------->
       <td class="p-0">
         <div class="violation-field">
           <label class="violation-label">Место нарушения:</label>
@@ -126,7 +130,7 @@
         </div>
       </td>
 
-      <!-- Нормативный документ -->
+      <!------------ Нормативный документ ------------->
       <td class="p-0">
         <textarea pTextarea autoResize rows="3"
                   formControlName="norm" class="violation-input"></textarea>
@@ -158,28 +162,39 @@
     </p-buttongroup>
   </div>
 
-  <!----------------------------------------------------------------------------->
+  <!------------------------------------------------------------------------------------->
 
   <div class="flex flex-column align-items-start gap-2 w-full mb-2 mt-4">
     <span class="align-self-start">В связи с тем, что выявленные нарушения ведут к снижению качества работ и
     уровня безопасности объектов ПАО «Газпром», необходимо:&nbsp;</span>
-    <textarea pTextarea
-              autoResize="true"
-              rows="1"
-              formControlName="actions"
-              class="w-full"
-              style="max-width:40rem;"></textarea>
+
+    <div style="width: 40rem">
+      <p-dropdown formControlName="actions"
+                  [options]="actionsOpc"
+                  optionLabel="label"
+                  optionValue="label"
+                  autoResize="true"
+                  [editable]="true"
+                  placeholder="Выберите действие"
+                  class="w-full">
+      </p-dropdown>
+    </div>
+
   </div>
 
   <div class="flex flex-column align-items-start gap-2 w-full mb-2">
-    <span class="align-self-start">В связи с тем, что выявленные нарушения ведут к снижению качества работ и
-    уровня безопасности объектов ПАО «Газпром», необходимо:&nbsp;</span>
+    <span class="align-self-start">После устранения нарушений прошу Вас представить официальный ответ&nbsp;</span>
     <textarea pTextarea
               autoResize="true"
               rows="1"
               formControlName="contacts"
               class="w-full"
               style="max-width:40rem;"></textarea>
+  </div>
+
+  <div class="flex align-items-start w-full gap-2 mb-2">
+    <span class="align-self-start">Фото нарушения:,&nbsp;</span>
+<!--  Кнопка - Добавить ещё фото-->
   </div>
 
 

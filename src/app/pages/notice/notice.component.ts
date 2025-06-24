@@ -3,7 +3,7 @@ import {
   Component,
   ViewChild,
   ElementRef,
-  inject,
+  inject, OnInit,
 } from '@angular/core';
 import {
   FormArray,
@@ -46,6 +46,9 @@ import {FloatLabel} from 'primeng/floatlabel';
 // import {Button} from 'primeng/button';
 import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
+import {DropdownModule} from 'primeng/dropdown';
+
+interface ActionOpt { label: string; value: string; }
 
 /* ------------- Компонент --------------- */
 @Component({
@@ -53,11 +56,11 @@ import {ButtonGroupModule} from 'primeng/buttongroup';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule,
     HttpClientModule, DatePicker, InputText,
-    TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule],
+    TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule, DropdownModule],
   templateUrl: './notice.component.html',
   styleUrls: ['./notice.component.scss'],
 })
-export class NoticeComponent {
+export class NoticeComponent implements OnInit {
   /* --- DI --- */
   private fb: NonNullableFormBuilder = inject(FormBuilder).nonNullable;
   private noticeService = inject(NoticeService);
@@ -78,15 +81,27 @@ export class NoticeComponent {
     objectName: this.fb.control(''),
     workType:   this.fb.control(''),
     violations: this.fb.array<FormGroup<INoticeViolationForm>>([]),
-    actions:    this.fb.control(''),
+    actions:    this.fb.control<string>(''),
     contacts:   this.fb.control(''),
     // ('', { validators: Validators.required })
   });
 
-  /* --------- геттер для удобства *ngFor ------------ */
-  // get violations(): FormArray<FormGroup<INoticeViolationForm>> {
-  //   return this.form.get('violations') as FormArray<FormGroup<INoticeViolationForm>>;
-  // }
+  actionsOpc: ActionOpt[] = [
+    { label: 'Устранить выявленные нарушения в указанный срок', value: 'fix1' },
+    { label: 'предоставить требуемые документы в установленный срок.', value: 'fix2' },
+    { label: 'Приостановить работы до устранения', value: 'stop' },
+    { label: 'Другое...', value: 'other' },
+  ];
+
+  save() {
+    console.log(this.form.value);  // { actions: 'fix' }
+  }
+
+  ngOnInit(): void {
+    if (this.violations.length === 0) {
+      this.addViolation();
+    }
+  }
 
   get violations(): FormArray<FormGroup<INoticeViolationForm>> {
     return this.form.controls.violations;
@@ -134,7 +149,7 @@ export class NoticeComponent {
             ...v,
         deadline: new Date(v.deadline).toISOString(),
       })),
-      actions:    f.actions,
+      actions:    f.actions as string,
       contacts:   f.contacts,
     };
 
@@ -187,7 +202,7 @@ export class NoticeComponent {
 
   private datePipe = inject(DatePipe);
 
-  /* ----------- DOCX ---------------- */
+  /* --------------------------- DOCX ------------------------------------- */
   private readonly RU_MONTHS = [
     'января',
     'февраля',

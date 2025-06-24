@@ -1,72 +1,100 @@
-<p-table #dt
-         [value]="notices"
-         showGridlines
-         dataKey="noticeNum"
-         sortMode="multiple"
-         rowGroupMode="subheader"
-         groupRowsBy="noticeNum"
-         [columns]="selectedColumns"
-         stateKey="notice-registry" stateStorage="session"
-         (onPage)="first = $event.first"
-
+<p-table
+  #dt
+  [value]="notices"
+  showGridlines
+  [first]="first"
+  [rows]="rows"
+  dataKey="noticeNum"
+  rowGroupMode="rowspan"
+  groupRowsBy="noticeNum"
+  sortField="noticeNum"
+  sortMode="single"
+  [columns]="selectedColumns"
+  stateKey="notice-registry"
+  stateStorage="session"
+  (onPage)="first = $event.first"
 >
+  <!-- caption: колонки / экспорт / поиск -->
+  <ng-template pTemplate="caption">
+    <p-multiselect
+      [options]="cols"
+      [(ngModel)]="selectedColumns"
+      optionLabel="header"
+      display="chip"
+      selectedItemsLabel="{0} выбрано"
+      class="w-10rem"
+    ></p-multiselect>
 
-<!-- caption: toggle-колонки, экспорт, поиск, навигация -->
-<ng-template #caption>
-  <p-multiselect [options]="cols" [(ngModel)]="selectedColumns"
-                 optionLabel="header" display="chip"
-                 selectedItemsLabel="{0} выбрано"
-                 class="w-10rem" ></p-multiselect>
-  <span class="mx-3">
-      <input pInputText type="text" placeholder="Поиск..."
-             (input)="onGlobalFilter($event)" class="w-20rem" />
-  </span>
-  <p-button icon="pi pi-download" label="CSV"
-            class="mx-2" (click)="dt.exportCSV()" />
-<!--  <p-button icon="pi pi-chevron-left" (click)="prev()"-->
-<!--            [disabled]="isFirstPage()" />-->
-<!--  <p-button icon="pi pi-refresh" (click)="reset()" />-->
-<!--  <p-button icon="pi pi-chevron-right" (click)="next()"-->
-<!--            [disabled]="isLastPage()" />-->
-</ng-template>
+    <span class="mx-3">
+      <input
+        pInputText
+        type="text"
+        placeholder="Поиск…"
+        (input)="onGlobalFilter($event)"
+        class="w-20rem"
+      />
+    </span>
 
-<!-------- групповой заголовок ------------------->
-<ng-template pTemplate="rowgroupheader" let-rowData>
-  <tr class="bg-primary-50 text-primary-900 font-semibold">
-    <td [attr.colspan]="selectedColumns.length">
-      Уведомление № {{ rowData.noticeNum }} от {{ rowData.noticeDate | date:'dd.MM.yyyy' }}
-    </td>
-  </tr>
-</ng-template>
+    <p-button
+      icon="pi pi-download"
+      label="Скачать в формате CSV"
+      class="mx-2"
+      (click)="dt.exportCSV()"
+    />
+  </ng-template>
 
-<!-- обычный заголовок -->
-<ng-template pTemplate="header" let-columns>
-  <tr>
-    <th *ngFor="let col of columns" pResizableColumn>
-      {{ col.header }}
-      <!-- per-column advanced filter -->
-      <p-columnFilter [field]="col.field" display="menu" />
-    </th>
-  </tr>
-</ng-template>
+  <!-- обычный заголовок -->
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th style="width:3rem">№</th>
+      <th *ngFor="let col of columns" pResizableColumn class="text-center">
+        <div class="font-semibold mb-1">{{ col.header }}</div>
+        <p-columnFilter [field]="col.field" display="menu" pStyleClass="w-full"/>
+      </th>
+    </tr>
+  </ng-template>
 
-<!----------------- тело ------------------------->
-<ng-template pTemplate="body" let-row let-columns="columns">
-  <tr>
-    <td *ngFor="let col of columns">
-      <ng-container [ngSwitch]="col.field">
-        <span *ngSwitchCase="'noticeDate'">{{ row.noticeDate | date:'dd.MM.yyyy' }}</span>
-        <span *ngSwitchCase="'deadline'">{{ row.deadline   | date:'dd.MM.yyyy' }}</span>
-        <span *ngSwitchDefault>{{ row[col.field] }}</span>
+  <!-- тело -->
+  <ng-template
+    pTemplate="body"
+    let-row
+    let-rowIndex="rowIndex"
+    let-rowgroup="rowgroup"
+    let-rowspan="rowspan"
+    let-columns="columns"
+  >
+    <tr>
+      <!-- ячейка со сквозным номером (учитываем пагинацию) -->
+      <td>{{ first + rowIndex + 1 }}</td>
+      <ng-container *ngFor="let col of columns">
+        <!-- показываем ячейку либо если это не «склеиваемое» поле,
+             либо если это первая строка группы -->
+        <td
+          *ngIf="displayCell(col.field, rowgroup)"
+          [attr.rowspan]="getRowspan(col.field, rowgroup, rowspan)"
+        >
+          <ng-container [ngSwitch]="col.field">
+          <span *ngSwitchCase="'noticeDate'">
+            {{ row.noticeDate | date: 'dd.MM.yyyy' }}
+          </span>
+            <span *ngSwitchCase="'deadline'">
+            {{ row.deadline | date: 'dd.MM.yyyy' }}
+          </span>
+            <span *ngSwitchDefault>
+            {{ row[col.field] }}
+          </span>
+          </ng-container>
+        </td>
       </ng-container>
-    </td>
-  </tr>
-</ng-template>
+    </tr>
+  </ng-template>
 
-<!---------- сообщение о пустой таблице ------------------>
-<ng-template pTemplate="emptymessage">
-  <tr><td [attr.colspan]="selectedColumns.length" class="text-center">
-    Нет данных
-  </td></tr>
-</ng-template>
+  <!-- когда данных нет -->
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td [attr.colspan]="selectedColumns.length + 1" class="text-center">
+        Нет данных
+      </td>
+    </tr>
+  </ng-template>
 </p-table>

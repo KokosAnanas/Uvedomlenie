@@ -9,9 +9,10 @@ import Material from '@primeng/themes/material';
 import Lara  from '@primeng/themes/lara';
 import Nora  from '@primeng/themes/nora';
 import {ReactiveFormsModule} from '@angular/forms';
-import {provideHttpClient} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {ConfigService} from './services/config.service';
+import {AuthInterceptor} from './services/auth.interceptor';
 
 const loadConfig = (cfg: ConfigService) => () => cfg.loadPromise();
 
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(ReactiveFormsModule),
     provideAnimationsAsync(),
     provideAnimations(),
@@ -34,6 +35,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: loadConfig,
       deps: [ConfigService],
       multi: true
-    }
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ]
 };

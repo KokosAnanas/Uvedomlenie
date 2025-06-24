@@ -386,7 +386,7 @@ export class NoticeComponent {
                   }),
                 ],
               }),
-              new TableCell({ children: [new Paragraph(v.note)] }),
+              new TableCell({ children: [new Paragraph(v.note ?? '')] }),
             ],
           }),
         ),

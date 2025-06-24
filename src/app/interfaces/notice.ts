@@ -3,16 +3,16 @@ import {FormArray, FormControl, FormGroup} from '@angular/forms';
 export interface INotice {
   orgName:    string;
   noticeNum:  string;
-  noticeDate: string;
+  noticeDate: string | Date;  // string
   toWhom:     string;
   copyTo:     string;
   specialist: string;
-  present:    string;
+  present?:    string;               //?
   objectName: string;
   workType:   string;
   violations: INoticeViolation[];
   actions:    string;
-  contacts:   string;
+  contacts?:   string;                   //?
 }
 
 export interface INoticeViolation {
@@ -20,8 +20,8 @@ export interface INoticeViolation {
   element: string;
   subject: string;
   norm: string;
-  deadline: string;
-  note: string;
+  deadline: string | Date;       // string
+  note?: string | null;                   //?
 }
 
 export type INoticeFormGroup = {
@@ -47,4 +47,6 @@ export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'
   noticeDate: string;
   violations: INoticeViolation[];
 }
+
+export type RegistryRow = INotice & INoticeViolation;
 

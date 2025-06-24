@@ -2,37 +2,63 @@ import { Injectable } from '@angular/core';
 import { IUser, IUserRegister } from '../interfaces/users';
 import { HttpClient } from '@angular/common/http';
 import { API } from '../shared/api';
-import { Observable } from 'rxjs';
+import {map, Observable, tap} from 'rxjs';          // ✨ tap
 
-@Injectable({
-  providedIn: 'root'
-})
+export const LOCAL_STORAGE_TOKEN = 'access_token';
 
+@Injectable({ providedIn: 'root' })
 export class UserService {
 
   private currentUser: IUser | null = null;
+  private currentToken: string | null = localStorage.getItem(LOCAL_STORAGE_TOKEN);
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  registerUser(user: IUserRegister): Observable<string> {
-    return this.http.post(API.registration, user, {responseType: 'text'});
+  /* ---------- регистрация ---------- */
+  registerUser(dto: IUserRegister) {
+    return this.http
+      .post<{ access_token: string }>(API.registration, dto)      // <-- BACK отправляет {access_token}
+      .pipe(
+        tap(res => this.storeToken(res.access_token)),            // 💾
+        map(res => res.access_token)
+      );
   }
 
-  authUser(user: IUser): Observable<string> {
-    return this.http.post<string>(API.auth(user.login), user,);
+  /* ---------- авторизация ---------- */
+  authUser(credentials: IUser) {
+    return this.http
+      .post<{ access_token: string }>(API.auth(credentials.login), credentials)
+      .pipe(
+        tap(res => this.storeToken(res.access_token)),            // 💾
+        map(res => res.access_token)
+      );
   }
 
-  getUser(): IUser {
-    return this.currentUser || JSON.parse(<string>sessionStorage.getItem('login'));
+  /* ---------- токен и пользователь ---------- */
+  get token(): string | null {
+    return this.currentToken ?? localStorage.getItem(LOCAL_STORAGE_TOKEN);
   }
 
-  setUser(user: IUser): void {
+  logout(): void {
+    this.storeToken(null);
+    this.setUser(null);
+  }
+
+  /* ---------- прочее, как было ---------- */
+  getUser(): IUser | null {
+    return this.currentUser ?? JSON.parse(sessionStorage.getItem('login') || 'null');
+  }
+
+  setUser(user: IUser | null): void {
     this.currentUser = user;
-    if (user !== null) {
-      sessionStorage.setItem('login', JSON.stringify({login:user.login}));
-    } else {
-      sessionStorage.setItem('login', '');
-    }
-    // console.log(sessionStorage);
+    sessionStorage.setItem('login', user ? JSON.stringify({ login: user.login }) : '');
+  }
+
+  /* ---------- приватный помощник ---------- */
+  private storeToken(token: string | null) {
+    this.currentToken = token;
+    token
+      ? localStorage.setItem(LOCAL_STORAGE_TOKEN, token)
+      : localStorage.removeItem(LOCAL_STORAGE_TOKEN);
   }
 }

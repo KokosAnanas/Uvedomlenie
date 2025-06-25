@@ -7,6 +7,9 @@ export const API = {
   auth: (login: string) => `${serverIp}/users/${login}`,
 	registration: `${serverIp}/users`,
 	notices: `${serverIp}/notices`,
+  uploads: `${serverIp}/uploads`,
+
+
 	// notice: `${serverIp}/notice`,
 	// config: `/config/config.json`,
   // nearestNotices: `${serverIp}/nearestNotices`,

@@ -21,6 +21,8 @@ import {
   INoticeViolation,
 } from '../../interfaces/notice';
 import {StyleClass} from 'primeng/styleclass';
+import {ImageModule} from 'primeng/image';
+import {API} from '../../shared/api';
 
 type RegistryRow = INotice & INoticeViolation;
 
@@ -28,6 +30,7 @@ type RegistryRow = INotice & INoticeViolation;
   standalone: true,
   selector: 'app-registry',
   imports: [
+    ImageModule,
     CommonModule,
     TableModule,
     MultiSelectModule,
@@ -54,7 +57,7 @@ export class RegistryComponent implements OnInit {
   rows = 10;
   private groupedCols: Array<keyof RegistryRow> = [
     'orgName', 'noticeNum', 'noticeDate', 'toWhom',
-    'copyTo', 'specialist', 'objectName', 'workType', 'actions'
+    'copyTo', 'specialist', 'objectName', 'workType', 'actions', 'photos'
   ];
 
   constructor(private noticeApi: NoticeService) {}
@@ -76,6 +79,7 @@ export class RegistryComponent implements OnInit {
       { field: 'norm', header: 'НД (пункт)' },
       { field: 'deadline', header: 'Срок' },
       { field: 'actions', header: 'Действия' },
+      { field: 'photos', header: 'Фото нарушения' },
       { field: 'note', header: 'Примечание' },
     ];
     this.selectedColumns = [...this.cols];
@@ -111,4 +115,12 @@ export class RegistryComponent implements OnInit {
       ? String(span)
       : null;
   }
+
+  photoSrc(fileName?: string | null) {
+    return fileName ? `http://localhost:3000/uploads/${fileName}` : '';
+  }
+
+  // photoSrc(fileName?: string | null) {
+  //   return fileName ? API.uploads + `/${fileName}` : '';
+  // }
 }

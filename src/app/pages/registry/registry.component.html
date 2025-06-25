@@ -74,15 +74,37 @@
           [attr.rowspan]="getRowspan(col.field, rowgroup, rowspan)"
         >
           <ng-container [ngSwitch]="col.field">
-          <span *ngSwitchCase="'noticeDate'">
+            <span *ngSwitchCase="'noticeDate'">
             {{ row.noticeDate | date: 'dd.MM.yyyy' }}
-          </span>
+            </span>
+
             <span *ngSwitchCase="'deadline'">
             {{ row.deadline | date: 'dd.MM.yyyy' }}
-          </span>
+            </span>
+
+            <!-- колонка «Фото нарушения» -->
+            <ng-container *ngSwitchCase="'photos'">
+              <!-- Если есть фото -->
+              <ng-container *ngIf="row.photos?.length; else noPhoto">
+                <div class="flex flex-row flex-wrap gap-2">
+                  <p-image
+                    *ngFor="let p of row.photos"
+                    [src]="photoSrc(p)"
+                    preview
+                    imageClass="w-6rem h-4rem object-cover border-round shadow-2">
+                  </p-image>
+                </div>
+              </ng-container>
+
+              <!-- Если фотографий нет -->
+              <ng-template #noPhoto>
+                <span class="text-500 italic">Нет фото</span>
+              </ng-template>
+            </ng-container>
+
             <span *ngSwitchDefault>
             {{ row[col.field] }}
-          </span>
+            </span>
           </ng-container>
         </td>
       </ng-container>

@@ -193,8 +193,19 @@
   </div>
 
   <div class="flex align-items-start w-full gap-2 mb-2">
-    <span class="align-self-start">Фото нарушения:,&nbsp;</span>
-<!--  Кнопка - Добавить ещё фото-->
+    <span class="align-self-start">Фото нарушения:</span>
+
+    <p-fileUpload
+      name="photos"
+      customUpload="true"
+      (onSelect)="onSelect($event)"
+      [showUploadButton]="false"
+      [showCancelButton]="false"
+      accept="image/*"
+      multiple
+      chooseLabel="Добавить фото нарушения"
+      styleClass="p-fluid w-full max-w-40rem">
+    </p-fileUpload>
   </div>
 
 

@@ -13,6 +13,7 @@ export interface INotice {
   violations: INoticeViolation[];
   actions:    string;
   contacts?:   string;                   //?
+  photos: string[];
 }
 
 export interface INoticeViolation {
@@ -37,15 +38,17 @@ export type INoticeFormGroup = {
   violations:  FormArray<FormGroup<INoticeViolationForm>>;
   actions:     FormControl<string>;
   contacts:    FormControl<string>;
+  photos:      FormControl<string[]>;
 };
 // каждая клетка таблицы — FormControl<string>
 export type INoticeViolationForm = {
   [K in keyof INoticeViolation]: FormControl<string>;
 };
 
-export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'> {
+export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'|'photos'> {
   noticeDate: string;
   violations: INoticeViolation[];
+  photos: string[];
 }
 
 export type RegistryRow = INotice & INoticeViolation;

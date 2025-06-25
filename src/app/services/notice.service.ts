@@ -12,7 +12,7 @@ export class NoticeService {
   private http = inject(HttpClient);
 
   /** POST /api/notices */
-  create(dto: CreateNoticeDto): Promise<void> {
+  create(dto: FormData): Promise<void> {
     return firstValueFrom(this.http.post<void>(API.notices, dto));
   }
   getNotices(): Observable<INotice[]> {

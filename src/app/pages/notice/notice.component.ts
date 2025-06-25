@@ -47,6 +47,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
+import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
 
 interface ActionOpt { label: string; value: string; }
 
@@ -55,7 +56,7 @@ interface ActionOpt { label: string; value: string; }
   selector: 'app-notice',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule,
-    HttpClientModule, DatePicker, InputText,
+    HttpClientModule, DatePicker, InputText, FileUploadModule,
     TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule, DropdownModule],
   templateUrl: './notice.component.html',
   styleUrls: ['./notice.component.scss'],
@@ -65,6 +66,8 @@ export class NoticeComponent implements OnInit {
   private fb: NonNullableFormBuilder = inject(FormBuilder).nonNullable;
   private noticeService = inject(NoticeService);
   private http = inject(HttpClient)
+
+  private selectedFiles: File[] = [];
 
   /* ---------------- DOM -------------------- */
   @ViewChild('printArea') printArea!: ElementRef<HTMLElement>;
@@ -83,8 +86,31 @@ export class NoticeComponent implements OnInit {
     violations: this.fb.array<FormGroup<INoticeViolationForm>>([]),
     actions:    this.fb.control<string>(''),
     contacts:   this.fb.control(''),
+    photos:     this.fb.control<string[]>([]),
     // ('', { validators: Validators.required })
   });
+
+  /* ---------- загрузка файлов ---------- */
+  onSelect(ev: FileSelectEvent) {
+    // ev.files имеет тип File[]
+    this.selectedFiles.push(...(ev.files as File[]));
+
+    // записываем имена файлов в форму (если нужно отобразить)
+    this.form.controls.photos.setValue(
+      this.selectedFiles.map(f => f.name)
+    );
+  }
+
+  /* ---------- FormData для POST ---------- */
+  private buildFormData(): FormData {
+    const dto  = this.buildDto();                // JSON-часть
+    const data = new FormData();
+
+    data.append('notice', JSON.stringify(dto));
+    this.selectedFiles.forEach(f => data.append('photos', f));
+
+    return data;
+  }
 
   actionsOpc: ActionOpt[] = [
     { label: 'Устранить выявленные нарушения в указанный срок', value: 'fix1' },
@@ -92,10 +118,6 @@ export class NoticeComponent implements OnInit {
     { label: 'Приостановить работы до устранения', value: 'stop' },
     { label: 'Другое...', value: 'other' },
   ];
-
-  save() {
-    console.log(this.form.value);  // { actions: 'fix' }
-  }
 
   ngOnInit(): void {
     if (this.violations.length === 0) {
@@ -130,7 +152,7 @@ export class NoticeComponent implements OnInit {
     }
   }
 
-  /* ---------- подготовка DTO ---------- */
+    /* ---------- подготовка DTO ---------- */
   private buildDto(): CreateNoticeDto {
     const f = this.form.getRawValue();               // строго типизированное значение
     console.log(this);
@@ -151,6 +173,7 @@ export class NoticeComponent implements OnInit {
       })),
       actions:    f.actions as string,
       contacts:   f.contacts,
+      photos: [],
     };
 
   }
@@ -159,19 +182,17 @@ export class NoticeComponent implements OnInit {
 
   /** Кнопка «Сохранить в БД» */
 
-  async saveToDb(): Promise<void> {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+  async saveToDb() {
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     try {
-      await this.noticeService.create(this.buildDto());
-      this.form.reset();                      // очистим форму после успешного POST
+      await this.noticeService.create(this.buildFormData());
+      // this.form.reset();
+      // this.selectedFiles = [];
       alert('Уведомление сохранено.');
-    } catch (err) {
-      console.error(err);
-      alert('Не удалось сохранить уведомление.');
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось сохранить.');
     }
   }
 

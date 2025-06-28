@@ -13,6 +13,8 @@ import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@ang
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {ConfigService} from './services/config.service';
 import {AuthInterceptor} from './services/auth.interceptor';
+import AuraTeal from '../theme/aura-teal';
+import AuraLime from '../theme/aura-lime';
 
 const loadConfig = (cfg: ConfigService) => () => cfg.loadPromise();
 
@@ -27,7 +29,7 @@ export const appConfig: ApplicationConfig = {
     DatePipe,
     providePrimeNG({
       theme: {
-        preset: Aura
+        preset: AuraLime
       }
     }),
     {

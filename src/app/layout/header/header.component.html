@@ -1,23 +1,30 @@
 
-<header class="surface-0 border-bottom-1 border-200 w-full sticky top-0 z-5">
-  <nav class="flex align-items-center justify-content-between px-4 py-2">
+<header
+  class="surface-0 border-bottom-1 border-200 sticky top-0 z-5
+         flex align-items-center justify-content-between px-4 py-2">
 
-    <span class="font-semibold text-lg select-none">Уведомление.ру</span>
+  <!-- слева -->
+  <span routerLink="/" class=" font-bold  select-none cursor-pointer">
+    УВЕДОМЛЕНИЕ.РУ
+  </span>
 
-    <ul class="list-none flex gap-4 m-0 p-0">
-      <li><a routerLink="/"         class="text-color hover:text-primary transition-colors">Главная страница</a></li>
-      <li><a routerLink="/notice"   class="text-color hover:text-primary transition-colors">Уведомление</a></li>
-      <li><a routerLink="/registry" class="text-color hover:text-primary transition-colors">Реестр уведомлений</a></li>
+  <!-- справа -->
+  <div class="flex align-items-center gap-3">
+    <!-- пункты меню -->
+    <p-menubar
+      [model]="items"
+      styleClass="w-auto shadow-2 border-round">
+    </p-menubar>
 
-      <li>
-        <button pButton type="button"
-                icon="pi pi-power-off"
-                class="p-button-text p-0">
-<!--                (click)="logout()">-->
-          Выход
-        </button>
-      </li>
-    </ul>
-
-  </nav>
+    <!-- кнопка выхода -->
+    <button pButton type="button"
+            icon="pi pi-power-off"
+            class="p-button-text p-button-sm"
+            (click)="logout()">
+      Выход
+    </button>
+  </div>
 </header>
+
+
+

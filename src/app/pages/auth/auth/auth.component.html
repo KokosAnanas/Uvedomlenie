@@ -1,17 +1,21 @@
-<div class="flex justify-content-center">
-  <p-tabs value="0">
-    <p-tablist>
-      <p-tab value="0">Авторизация</p-tab>
-      <p-tab value="1">Регисрация</p-tab>
-    </p-tablist>
-    <p-tabpanels>
-      <p-tabpanel value="0">
-        <app-authorization></app-authorization>
-      </p-tabpanel>
-      <p-tabpanel value="1">
-        <app-registration></app-registration>
-      </p-tabpanel>
-    </p-tabpanels>
-  </p-tabs>
+
+<div class="flex justify-content-center align-items-start min-h-screen pt-8">
+  <div class="surface-card p-4 border-round shadow-2 w-25rem min-h-30rem">
+    <p-tabs value="0" class="w-full">
+      <p-tablist class="flex justify-content-center">
+        <p-tab value="0">Авторизация</p-tab>
+        <p-tab value="1">Регистрация</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <app-authorization></app-authorization>
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <app-registration></app-registration>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
 </div>
+
 <p-toast />

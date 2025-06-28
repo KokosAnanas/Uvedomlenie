@@ -101,13 +101,13 @@ export class NoticeComponent implements OnInit {
     );
   }
 
-  /* ---------- FormData для POST ---------- */
+  /* ----------Подготовка FormData для POST ---------- */
   private buildFormData(): FormData {
-    const dto  = this.buildDto();                // JSON-часть
+    const dto  = this.buildDto();           // сформировать JSON-объект DTO
     const data = new FormData();
 
-    data.append('notice', JSON.stringify(dto));
-    this.selectedFiles.forEach(f => data.append('photos', f));
+    data.append('notice', JSON.stringify(dto));     // вложить JSON с данными
+    this.selectedFiles.forEach(file => data.append('photos', file));
 
     return data;
   }
@@ -181,7 +181,7 @@ export class NoticeComponent implements OnInit {
   /* ============ КНОПКИ ============== */
 
   /** Кнопка «Сохранить в БД» */
-
+  // Подготовка FormData и отправка запроса POST
   async saveToDb() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
@@ -192,7 +192,7 @@ export class NoticeComponent implements OnInit {
       alert('Уведомление сохранено.');
     } catch (e) {
       console.error(e);
-      alert('Не удалось сохранить.');
+      alert('Ошибка при сохранении.');
     }
   }
 

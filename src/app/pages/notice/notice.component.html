@@ -155,10 +155,10 @@
     <p-buttongroup>
       <p-button (click)="addViolation()" label="Добавить нарушение"
                 icon="pi pi-plus" severity="secondary"
-                size="small"/>
+                />
       <p-button (click)="removeLastViolation()" [disabled]="violations.length === 0"
                 label="Удалить" icon="pi pi-trash" severity="secondary"
-                size="small"/>
+               />
     </p-buttongroup>
   </div>
 
@@ -204,7 +204,7 @@
       accept="image/*"
       multiple
       chooseLabel="Добавить фото нарушения"
-      styleClass="p-fluid w-full max-w-40rem">
+      chooseStyleClass="p-button-secondary p-button-lg">
     </p-fileUpload>
   </div>
 
@@ -212,9 +212,53 @@
 </div>
 
 <!-- --- КНОПКИ --- -->
-<footer class="actions no-print">
-  <button type="button" (click)="saveToDb()" [disabled]="form.invalid" class="m-3 p-3">Сохранить в БД</button>
-  <button type="button" (click)="saveAsDocx()" [disabled]="form.invalid" class="m-3 p-3">Скачать DOCX</button>
-  <button type="button" (click)="saveAsPdf()" [disabled]="form.invalid" class="m-3 p-3">Скачать PDF</button>
-  <button type="button" (click)="print()" [disabled]="form.invalid" class="m-3 p-3">Распечатать</button>
+<footer class="actions no-print flex flex-wrap gap-3 mt-4">
+  <!-- 1. Сохранить в БД -->
+  <p-button
+    severity="secondary"
+    size="large"
+    label="Сохранить в БД"
+    icon="pi pi-database"
+    [raised]="true"
+    class=""
+    (click)="saveToDb()"
+    [disabled]="form.invalid">
+  </p-button>
+
+  <!-- 2. Скачать DOCX -->
+  <p-button
+    [raised]="true"
+    size="large"
+    label="Скачать DOCX"
+    icon="pi pi-file-word"
+    severity="secondary"
+    class=""
+    (click)="saveAsDocx()"
+    [disabled]="form.invalid">
+  </p-button>
+
+  <!-- 3. Скачать PDF -->
+  <p-button
+    [raised]="true"
+    label="Скачать PDF"
+    size="large"
+    icon="pi pi-file-pdf"
+    severity="secondary"
+    class=""
+    (click)="saveAsPdf()"
+    [disabled]="form.invalid">
+  </p-button>
+
+  <!-- 4. Печать -->
+  <p-button
+    [raised]="true"
+    severity="secondary"
+    size="large"
+    label="Печать"
+    icon="pi pi-print"
+
+    class="border-round"
+    (click)="print()"
+    [disabled]="form.invalid">
+  </p-button>
 </footer>

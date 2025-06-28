@@ -23,6 +23,8 @@ import {
 import {StyleClass} from 'primeng/styleclass';
 import {ImageModule} from 'primeng/image';
 import {API} from '../../shared/api';
+import {Router} from '@angular/router';
+import {Tooltip} from 'primeng/tooltip';
 
 type RegistryRow = INotice & INoticeViolation;
 
@@ -43,6 +45,7 @@ type RegistryRow = INotice & INoticeViolation;
     NgSwitchDefault,
     DatePipe,
     StyleClass,
+    Tooltip,
   ],
   templateUrl: './registry.component.html',
 })
@@ -60,7 +63,10 @@ export class RegistryComponent implements OnInit {
     'copyTo', 'specialist', 'objectName', 'workType', 'actions', 'photos'
   ];
 
-  constructor(private noticeApi: NoticeService) {}
+  constructor(
+    private noticeApi: NoticeService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     /* 15 колонок (INotice + INoticeViolation) */
@@ -119,6 +125,11 @@ export class RegistryComponent implements OnInit {
   photoSrc(fileName?: string | null) {
     return fileName ? `http://localhost:3000/uploads/${fileName}` : '';
   }
+
+  openNotice(row: RegistryRow) {
+    this.router.navigate(['/notice'], { state: { notice: row } });
+  }
+
 
   // photoSrc(fileName?: string | null) {
   //   return fileName ? API.uploads + `/${fileName}` : '';

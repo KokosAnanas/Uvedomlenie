@@ -120,6 +120,10 @@ export class NoticeComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    const stateNotice = history.state['notice'] as INotice | undefined;
+    if (stateNotice) {
+      this.patchForm(stateNotice);
+    }
     if (this.violations.length === 0) {
       this.addViolation();
     }
@@ -152,7 +156,37 @@ export class NoticeComponent implements OnInit {
     }
   }
 
-    /* ---------- подготовка DTO ---------- */
+  private patchForm(notice: INotice) {
+    this.form.patchValue({
+      orgName: notice.orgName,
+      noticeNum: notice.noticeNum,
+      noticeDate: String(notice.noticeDate),
+      toWhom: notice.toWhom,
+      copyTo: notice.copyTo,
+      specialist: notice.specialist,
+      present: notice.present ?? '',
+      objectName: notice.objectName,
+      workType: notice.workType,
+      actions: notice.actions,
+      contacts: notice.contacts ?? '',
+      photos: notice.photos,
+    });
+
+    this.violations.clear();
+    notice.violations.forEach(v => {
+      this.violations.push(this.fb.group<INoticeViolationForm>({
+        place: this.fb.control(v.place),
+        element: this.fb.control(v.element),
+        subject: this.fb.control(v.subject),
+        norm: this.fb.control(v.norm),
+        deadline: this.fb.control(String(v.deadline)),
+        note: this.fb.control(v.note ?? ''),
+      }));
+    });
+  }
+
+
+  /* ---------- подготовка DTO ---------- */
   private buildDto(): CreateNoticeDto {
     const f = this.form.getRawValue();               // строго типизированное значение
     console.log(this);

@@ -250,6 +250,28 @@ export class NoticeComponent implements OnInit {
     window.print();
   }
 
+  /** Очистить все поля формы */
+  clearForm() {
+    this.form = this.fb.group<INoticeFormGroup>({
+      orgName:    this.fb.control(''),
+      noticeNum:  this.fb.control(''),
+      noticeDate: this.fb.control(''),
+      toWhom:     this.fb.control(''),
+      copyTo:     this.fb.control(''),
+      specialist: this.fb.control(''),
+      present:    this.fb.control(''),
+      objectName: this.fb.control(''),
+      workType:   this.fb.control(''),
+      violations: this.fb.array<FormGroup<INoticeViolationForm>>([]),
+      actions:    this.fb.control<string>(''),
+      contacts:   this.fb.control(''),
+      photos:     this.fb.control<string[]>([]),
+    });
+    this.selectedFiles = [];
+    this.addViolation();
+  }
+
+
   /* ------------- ВСПОМОГАТЕЛЬНОЕ ---------------- */
   private fileName(ext: string) {
     return `Уведомление_${this.form.value.noticeNum}.${ext.replace('.', '')}`;

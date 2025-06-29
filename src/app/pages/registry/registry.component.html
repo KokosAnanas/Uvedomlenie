@@ -26,14 +26,22 @@
     ></p-multiselect>
 
     <span class="mx-3">
-      <input
-        pInputText
-        type="text"
-        placeholder="Поиск…"
-        (input)="onGlobalFilter($event)"
-        class="w-20rem"
-      />
-    </span>
+    <input
+      #globalFilterInput
+      pInputText
+      type="text"
+      placeholder="Поиск…"
+      [(ngModel)]="globalFilterValue"
+      (input)="onGlobalFilter($event)"
+      class="w-20rem"
+    />
+    <p-button
+      icon="pi pi-times"
+      class="ml-2"
+      label="Сбросить"
+      (click)="resetGlobalFilter(globalFilterInput)"
+    />
+  </span>
 
     <p-button
       icon="pi pi-download"

@@ -26,9 +26,11 @@
       <p-datepicker
         formControlName="noticeDate"
         [showIcon]="true"
+        [firstDayOfWeek]="1"
         dateFormat="dd.mm.yy"
         inputClass="no-underline w-full"
-        class="w-full">
+        class="w-full"
+        [showButtonBar]="true">
       </p-datepicker>
     </header>
 
@@ -138,8 +140,13 @@
 
       <!-- Срок -->
       <td class="text-center">
-        <input pInputText type="date" formControlName="deadline"
-               class="border-0 outline-none text-center w-full" />
+        <p-datepicker
+          formControlName="deadline"
+          [showIcon]="false"
+          dateFormat="dd.mm.yy"
+          inputClass="border-0 outline-none text-center w-full"
+          class="w-full">
+        </p-datepicker>
       </td>
 
       <!-- Примечание -->
@@ -260,5 +267,15 @@
     class="border-round"
     (click)="print()"
     [disabled]="form.invalid">
+  </p-button>
+
+  <!-- 5. Очистить форму -->
+  <p-button
+    [raised]="true"
+    severity="secondary"
+    size="large"
+    label="Очистить форму"
+    icon="pi pi-times"
+    (click)="clearForm()">
   </p-button>
 </footer>

@@ -55,6 +55,7 @@ export class RegistryComponent implements OnInit {
   notices: RegistryRow[] = [];
   cols: { field: keyof RegistryRow; header: string }[] = [];
   selectedColumns: { field: keyof RegistryRow; header: string }[] = [];
+  globalFilterValue = '';
 
   first = 0;
   rows = 10;
@@ -103,8 +104,16 @@ export class RegistryComponent implements OnInit {
   /** Глобальный фильтр */
   onGlobalFilter(e: Event) {
     const value = (e.target as HTMLInputElement | null)?.value ?? '';
+    this.globalFilterValue = value;
     this.table.filterGlobal(value, 'contains');
   }
+
+  resetGlobalFilter(input: HTMLInputElement) {
+    this.globalFilterValue = '';
+    input.value = '';
+    this.table.filterGlobal('', 'contains');
+  }
+
 
   /** Показать ли ячейку? */
   displayCell(field: keyof RegistryRow, firstOfGroup: boolean) {

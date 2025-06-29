@@ -28,7 +28,7 @@ export interface INoticeViolation {
 export type INoticeFormGroup = {
   orgName:     FormControl<string>;
   noticeNum:   FormControl<string>;
-  noticeDate:  FormControl<string>;          // ISO-строка
+  noticeDate:  FormControl<string | Date>;          // ISO-строка
   toWhom:      FormControl<string>;
   copyTo:      FormControl<string>;
   specialist:  FormControl<string>;
@@ -40,9 +40,14 @@ export type INoticeFormGroup = {
   contacts:    FormControl<string>;
   photos:      FormControl<string[]>;
 };
-// каждая клетка таблицы — FormControl<string>
+
 export type INoticeViolationForm = {
-  [K in keyof INoticeViolation]: FormControl<string>;
+  place: FormControl<string>;
+  element: FormControl<string>;
+  subject: FormControl<string>;
+  norm: FormControl<string>;
+  deadline: FormControl<string | Date>;
+  note: FormControl<string>;
 };
 
 export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'|'photos'> {

@@ -69,6 +69,14 @@ export class NoticeComponent implements OnInit {
 
   private selectedFiles: File[] = [];
 
+  private toDate(val: string | Date): Date {
+    return val instanceof Date ? val : new Date(val);
+  }
+
+  private dateInput(val: string | Date): string {
+    return this.toDate(val).toISOString().split('T')[0];
+  }
+
   /* ---------------- DOM -------------------- */
   @ViewChild('printArea') printArea!: ElementRef<HTMLElement>;
 
@@ -140,7 +148,7 @@ export class NoticeComponent implements OnInit {
       element: this.fb.control(''),
       subject: this.fb.control(''),
       norm: this.fb.control(''),
-      deadline: this.fb.control(''),
+      deadline: this.fb.control<string | Date>(''),
       note: this.fb.control(''),
     });
   }
@@ -160,7 +168,7 @@ export class NoticeComponent implements OnInit {
     this.form.patchValue({
       orgName: notice.orgName,
       noticeNum: notice.noticeNum,
-      noticeDate: String(notice.noticeDate),
+      noticeDate: this.toDate(notice.noticeDate),
       toWhom: notice.toWhom,
       copyTo: notice.copyTo,
       specialist: notice.specialist,
@@ -179,7 +187,7 @@ export class NoticeComponent implements OnInit {
         element: this.fb.control(v.element),
         subject: this.fb.control(v.subject),
         norm: this.fb.control(v.norm),
-        deadline: this.fb.control(String(v.deadline)),
+        deadline: this.fb.control(this.toDate(v.deadline)),
         note: this.fb.control(v.note ?? ''),
       }));
     });
@@ -295,8 +303,8 @@ export class NoticeComponent implements OnInit {
     'декабря',
   ];
 
-  private formatRuDate(iso: string): string {
-    const d = new Date(iso);
+  private formatRuDate(date: string | Date): string {
+    const d = date instanceof Date ? date : new Date(date);
     const day = d.getDate().toString().padStart(2, '0');
     return `« ${day} »  ${this.RU_MONTHS[d.getMonth()]}  ${d.getFullYear()} г.`;
   }

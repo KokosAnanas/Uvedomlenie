@@ -8,7 +8,6 @@ import {
 import {
   FormArray,
   FormBuilder,
-  FormControl,
   FormGroup,
   NonNullableFormBuilder,
   Validators,
@@ -17,7 +16,7 @@ import {
 import {CommonModule, DatePipe} from '@angular/common';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { saveAs } from 'file-saver';
-import html2pdf from 'html2pdf.js';
+
 import {
   AlignmentType,
   BorderStyle,
@@ -40,10 +39,8 @@ import {
 } from '../../interfaces/notice';
 import {DatePicker} from 'primeng/datepicker';
 import {InputText} from 'primeng/inputtext';
-// import { InputTextModule } from 'primeng/inputtext';
 import {TextareaModule} from 'primeng/textarea';
 import {FloatLabel} from 'primeng/floatlabel';
-// import {Button} from 'primeng/button';
 import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
@@ -83,7 +80,7 @@ export class NoticeComponent implements OnInit {
   /* ============== ОСНОВНАЯ ФОРМА =================== */
   form = this.fb.group<INoticeFormGroup>({
     orgName:    this.fb.control(''),
-    noticeNum:   this.fb.control(''),
+    noticeNum:   this.fb.control('', { validators: Validators.required }),
     noticeDate:  this.fb.control(''),
     toWhom:     this.fb.control(''),
     copyTo:     this.fb.control(''),
@@ -95,7 +92,7 @@ export class NoticeComponent implements OnInit {
     actions:    this.fb.control<string>(''),
     contacts:   this.fb.control(''),
     photos:     this.fb.control<string[]>([]),
-    // ('', { validators: Validators.required })
+
   });
 
   /* ---------- загрузка файлов ---------- */
@@ -229,8 +226,6 @@ export class NoticeComponent implements OnInit {
 
     try {
       await this.noticeService.create(this.buildFormData());
-      // this.form.reset();
-      // this.selectedFiles = [];
       alert('Уведомление сохранено.');
     } catch (e) {
       console.error(e);
@@ -244,18 +239,6 @@ export class NoticeComponent implements OnInit {
     const doc = this.buildDocx();
     const blob = await Packer.toBlob(doc);
     saveAs(blob, this.fileName('.docx'));
-  }
-
-  saveAsPdf() {
-    if (this.form.invalid) return;
-    html2pdf()
-      .set({ margin: 10, filename: this.fileName('.pdf') })
-      .from(this.printArea.nativeElement)
-      .save();
-  }
-
-  print() {
-    window.print();
   }
 
   /** Очистить все поля формы */

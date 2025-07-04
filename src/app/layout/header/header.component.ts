@@ -19,10 +19,10 @@ export class HeaderComponent {
   items: MenuItem[] = [
     { label: 'Главная',        routerLink: '/' },
     { label: 'Уведомление',    routerLink: '/notice' },
-    { label: 'Реестр',         routerLink: '/registry' }
+    { label: 'Реестр уведомлений',         routerLink: '/registry' }
   ];
 
   logout(): void {
-    // TODO: подключить AuthService → выйти и редиректнуть на /login
+
   }
 }

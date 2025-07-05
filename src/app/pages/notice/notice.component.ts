@@ -46,6 +46,8 @@ import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
 import {FileUploadModule, FileSelectEvent, FileRemoveEvent, FileUpload} from 'primeng/fileupload';
 import {API} from '../../shared/api';
+import {createSignatureBlockTable} from '../../shared/docx/createSignatureBlockTable';
+import {createSignatureBlockTable2} from '../../shared/docx/createSignatureBlockTable2';
 
 interface ActionOpt { label: string; value: string; }
 
@@ -153,9 +155,9 @@ export class NoticeComponent implements OnInit {
   }
 
   actionsOpc: ActionOpt[] = [
-    { label: 'Устранить выявленные нарушения в указанный срок', value: 'fix1' },
+    { label: 'устранить выявленные нарушения в указанный срок', value: 'fix1' },
     { label: 'предоставить требуемые документы в установленный срок.', value: 'fix2' },
-    { label: 'Приостановить работы до устранения', value: 'stop' },
+    { label: 'приостановить работы до устранения', value: 'stop' },
     { label: 'Другое...', value: 'other' },
   ];
 
@@ -620,11 +622,11 @@ export class NoticeComponent implements OnInit {
 
             new Paragraph({
               indent: { firstLine: 567 },     // отступ 10 мм (567 twip)
+              alignment: AlignmentType.JUSTIFIED,
               children: [
                 new TextRun(
                   `Мною, ${f.specialist}, в присутствии ${f.present}
-на объекте ${f.objectName} в ходе выполнения ${f.workType} работ
-выявлены следующие нарушения требований действующих нормативных
+на объекте: ${f.objectName} в ходе выполнения ${f.workType} выявлены следующие нарушения требований действующих нормативных
 документов, отступления от проектной документации:`
                 ),
               ],
@@ -637,30 +639,59 @@ export class NoticeComponent implements OnInit {
 
             /* — Действия — */
             new Paragraph({
-              text:
-                `В связи с тем, что выявленные нарушения ведут к снижению качества работ и
-                уровня безопасности объектов ПАО «Газпром», необходимо: ${f.actions}`,
+              alignment: AlignmentType.JUSTIFIED,   // выравнивание по ширине
+              indent: { firstLine: 567 },           // 10 мм ≈ 567 twip
+              children: [
+                new TextRun(
+                  'В связи с тем, что выявленные нарушения ведут к снижению качества работ и\n' +
+                  'уровня безопасности объектов ПАО «Газпром», '
+                ),
+                new TextRun({
+                  text: `необходимо: ${f.actions}`,
+                  bold: true,                        // жирный шрифт
+                }),
+              ],
             }),
-            new Paragraph({ text: ' ' }),
+
             new Paragraph({
-              text: `После устранения нарушений прошу направить официальный ответ в ${f.orgName} на E-mail: ${f.contacts}`,
+              indent: { firstLine: 567 },     // отступ 10 мм (567 twip)
+              alignment: AlignmentType.JUSTIFIED,
+              children: [
+                new TextRun(
+                  `После устранения нарушений прошу Вас представить официальный ответ ${f.contacts}`
+                ),
+              ],
             }),
             new Paragraph({ text: ' ' }),
 
             /* — Подписи — */
-            new Paragraph({ children: [new TextRun({ text: 'Подписи:', bold: true })] }),
-            new Paragraph({ text: `${f.specialist}    __________  (подпись)` }),
-            new Paragraph({ text: 'Представитель генподрядчика __________  (подпись)' }),
-            new Paragraph({ text: 'Представитель подрядчика __________  (подпись)' }),
+            new Paragraph({
+              children: [new TextRun({ text: 'Подписи:'})],
+            }),
+
+            createSignatureBlockTable(),
             new Paragraph({ text: ' ' }),
+            createSignatureBlockTable2('Представитель генерального подрядчика'),
+            createSignatureBlockTable2('Представитель подрядчика'),
+
+            new Paragraph({ text: ' ' }),
+
             new Paragraph({
               text: 'Отметка о закрытии уведомления ________________________________________',
             }),
+
+
+
+
+
           ],
         },
       ],
     });
   }
+
+
+
 
   /* ─────────────── util: Header Cell ─────────────── */
   private headerCell(text: string, widthPercentage: number): TableCell {
@@ -675,4 +706,9 @@ export class NoticeComponent implements OnInit {
       ],
     });
   }
+
+
+
+
+
 }

@@ -20,7 +20,7 @@ import { saveAs } from 'file-saver';
 import {
   AlignmentType,
   BorderStyle,
-  Document,
+  Document, ImageRun,
   Packer,
   Paragraph,
   Table,
@@ -111,6 +111,50 @@ export class NoticeComponent implements OnInit {
   });
 
   /* ---------- загрузка файлов ---------- */
+
+  /** Читает все выбранные и уже существующие фото
+   *  и возвращает массив ImageRun для вставки в docx */
+  private async buildImageRuns(): Promise<ImageRun[]> {
+    const runs: ImageRun[] = [];
+
+    /* ------------ 1. Новые фотографии из <input type="file"> ---------- */
+    for (const f of this.selectedFiles) {
+      const buf = await f.arrayBuffer();
+      const ext = (f.type.split('/')[1] || 'png').replace('jpeg', 'jpg') as
+        | 'jpg' | 'png' | 'gif' | 'bmp';
+
+      runs.push(
+        new ImageRun({
+          type: ext,                               // ←  добавили
+          data: new Uint8Array(buf),
+          transformation: { width: 500, height: 300 },
+        }),
+      );
+    }
+
+    /* ------------ 2. Фото, которые уже были в уведомлении ------------ */
+    for (const name of this.existingPhotos) {
+      const resp = await fetch(this.photoSrc(name));
+      const buf  = await resp.arrayBuffer();
+      const ext  = (name.split('.').pop() || 'png')
+        .replace('jpeg', 'jpg') as 'jpg' | 'png' | 'gif' | 'bmp';
+
+      runs.push(
+        new ImageRun({
+          type: ext,                               // ←  добавили
+          data: new Uint8Array(buf),
+          transformation: { width: 500, height: 300 },
+        }),
+      );
+    }
+
+    return runs;
+  }
+
+
+
+
+
 
   /** Добавление файлов */
   onSelect(ev: FileSelectEvent) {
@@ -300,7 +344,8 @@ export class NoticeComponent implements OnInit {
   /** Кнопка «Сохранить в DOC» */
   async saveAsDocx() {
     if (this.form.invalid) return;
-    const doc = this.buildDocx();
+    const images = await this.buildImageRuns();
+    const doc = this.buildDocx(images);
     const blob = await Packer.toBlob(doc);
     saveAs(blob, this.fileName('.docx'));
   }
@@ -358,7 +403,7 @@ export class NoticeComponent implements OnInit {
     return `« ${day} »  ${this.RU_MONTHS[d.getMonth()]}  ${d.getFullYear()} г.`;
   }
 
-  private buildDocx(): Document {
+  private buildDocx(images: ImageRun[] = []): Document {
     const f = this.form.value;
 
     /* ------------------------- Блок «Дата / Кому» на одной строке --------------------------------- */
@@ -679,13 +724,36 @@ export class NoticeComponent implements OnInit {
             new Paragraph({
               text: 'Отметка о закрытии уведомления ________________________________________',
             }),
-
-
-
-
-
           ],
         },
+
+
+        /* ---------- Вторая страница с фотографиями ---------- */
+        ...(images.length
+          ? [{
+            /* те же поля страницы, что и в первой секции */
+            properties: {
+              page: { margin: { left: 1134, right: 567, top: 567, bottom: 567 } },
+            },
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 300 },
+                children: [ new TextRun({ text: 'Фотографии нарушения', bold: true }) ],
+              }),
+              ...images.map(img =>
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  spacing: { after: 300 },
+                  children: [ img ],
+                }),
+              ),
+            ],
+          }]
+          : []),
+
+
+
       ],
     });
   }

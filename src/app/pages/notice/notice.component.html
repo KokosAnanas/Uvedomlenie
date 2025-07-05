@@ -222,6 +222,20 @@
       chooseLabel="Добавить фото нарушения"
       chooseStyleClass="p-button-secondary p-button-lg">
     </p-fileUpload>
+
+    <div class="flex flex-row flex-wrap gap-2 mt-2">
+      <div *ngFor="let p of existingPhotos" class="relative">
+        <img [src]="photoSrc(p)"
+             class="w-6rem h-4rem object-cover border-round shadow-2" />
+        <button type="button"
+                pButton
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                class="remove-btn"
+                (click)="removeExistingPhoto(p)"></button>
+      </div>
+    </div>
   </div>
 
 

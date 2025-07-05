@@ -28,5 +28,11 @@ export class NoticeService {
     const encoded = encodeURIComponent(noticeNum);
     return this.http.delete<void>(`${API.notices}/${encoded}`);
   }
+
+  /** PUT /api/notices/:noticeNum */
+  updateNotice(noticeNum: string, dto: FormData): Promise<void> {
+    const encoded = encodeURIComponent(noticeNum);          // ← добавили
+    return firstValueFrom(this.http.put<void>(`${API.notices}/${encoded}`, dto));
+  }
 }
 

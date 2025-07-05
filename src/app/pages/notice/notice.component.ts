@@ -45,6 +45,7 @@ import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
 import {FileUploadModule, FileSelectEvent, FileRemoveEvent, FileUpload} from 'primeng/fileupload';
+import {API} from '../../shared/api';
 
 interface ActionOpt { label: string; value: string; }
 
@@ -65,6 +66,8 @@ export class NoticeComponent implements OnInit {
   private http = inject(HttpClient)
 
   private selectedFiles: File[] = [];
+  existingPhotos: string[] = [];
+  private editNoticeNum: string | null = null;
 
   private toDate(val: string | Date): Date {
     return val instanceof Date ? val : new Date(val);
@@ -131,7 +134,11 @@ export class NoticeComponent implements OnInit {
 
   /** Обновляем поле `photos` формы, чтобы оно показывало только актуальные имена */
   private refreshPhotosField() {
-    this.form.controls.photos.setValue(this.selectedFiles.map(f => f.name));
+    const names = [
+      ...this.existingPhotos,
+      ...this.selectedFiles.map(f => f.name),
+    ];
+    this.form.controls.photos.setValue(names);
   }
 
   /* ----------Подготовка FormData для POST ---------- */
@@ -214,6 +221,9 @@ export class NoticeComponent implements OnInit {
       photos: notice.photos,
     });
 
+    this.existingPhotos = [...notice.photos];
+    this.refreshPhotosField();
+
     this.violations.clear();
     notice.violations.forEach(v => {
       this.violations.push(this.fb.group<INoticeViolationForm>({
@@ -225,6 +235,15 @@ export class NoticeComponent implements OnInit {
         note: this.fb.control(v.note ?? ''),
       }));
     });
+  }
+
+  photoSrc(name: string): string {
+    return `${API.uploads}/${name}`;
+  }
+
+  removeExistingPhoto(name: string) {
+    this.existingPhotos = this.existingPhotos.filter(p => p !== name);
+    this.refreshPhotosField();
   }
 
 
@@ -249,7 +268,7 @@ export class NoticeComponent implements OnInit {
       })),
       actions:    f.actions as string,
       contacts:   f.contacts,
-      photos: [],
+      photos: [...this.existingPhotos, ...this.selectedFiles.map(f => f.name)],
     };
 
   }
@@ -262,7 +281,12 @@ export class NoticeComponent implements OnInit {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     try {
-      await this.noticeService.create(this.buildFormData());
+      const data = this.buildFormData();
+      if (this.editNoticeNum) {
+        await this.noticeService.updateNotice(this.editNoticeNum, data);
+      } else {
+        await this.noticeService.create(data);
+      }
 
       alert('Уведомление сохранено.');
     } catch (e) {
@@ -297,6 +321,8 @@ export class NoticeComponent implements OnInit {
       photos:     this.fb.control<string[]>([]),
     });
     this.selectedFiles = [];
+    this.existingPhotos = [];
+    this.editNoticeNum = null;
     this.addViolation();
   }
 

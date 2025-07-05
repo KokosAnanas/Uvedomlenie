@@ -132,7 +132,7 @@ export class RegistryComponent implements OnInit {
   }
 
   photoSrc(fileName?: string | null) {
-    return fileName ? `http://localhost:3000/uploads/${fileName}` : '';
+    return fileName ? `${API.uploads}/${fileName}` : '';
   }
 
   openNotice(row: RegistryRow) {
@@ -147,9 +147,4 @@ export class RegistryComponent implements OnInit {
     }
   }
 
-
-
-  // photoSrc(fileName?: string | null) {
-  //   return fileName ? API.uploads + `/${fileName}` : '';
-  // }
 }

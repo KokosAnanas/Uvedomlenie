@@ -22,5 +22,11 @@ export class NoticeService {
       // headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
   }
+
+  /** DELETE /api/notices/:noticeNum */
+  deleteNotice(noticeNum: string): Observable<void> {
+    const encoded = encodeURIComponent(noticeNum);
+    return this.http.delete<void>(`${API.notices}/${encoded}`);
+  }
 }
 

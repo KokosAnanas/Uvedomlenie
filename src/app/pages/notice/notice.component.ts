@@ -11,7 +11,7 @@ import {
   FormGroup,
   NonNullableFormBuilder,
   Validators,
-  ReactiveFormsModule,
+  ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors,
 } from '@angular/forms';
 import {CommonModule, DatePipe} from '@angular/common';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
@@ -44,7 +44,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
-import { FileUploadModule, FileSelectEvent } from 'primeng/fileupload';
+import {FileUploadModule, FileSelectEvent, FileRemoveEvent} from 'primeng/fileupload';
 
 interface ActionOpt { label: string; value: string; }
 
@@ -69,6 +69,16 @@ export class NoticeComponent implements OnInit {
   private toDate(val: string | Date): Date {
     return val instanceof Date ? val : new Date(val);
   }
+
+  private deadlineNotBeforeNotice: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+    const deadline   = group.get('deadline')?.value;
+    const noticeDate = this.form?.controls.noticeDate.value;
+
+    if (deadline && noticeDate && new Date(deadline) < new Date(noticeDate)) {
+      return { earlyDeadline: true };
+    }
+    return null;
+  };
 
   private dateInput(val: string | Date): string {
     return this.toDate(val).toISOString().split('T')[0];
@@ -96,14 +106,28 @@ export class NoticeComponent implements OnInit {
   });
 
   /* ---------- загрузка файлов ---------- */
-  onSelect(ev: FileSelectEvent) {
-    // ev.files имеет тип File[]
-    this.selectedFiles.push(...(ev.files as File[]));
+  /** Обновляем поле `photos` формы, чтобы оно показывало только актуальные имена */
+  private refreshPhotosField() {
+    this.form.controls.photos.setValue(this.selectedFiles.map(f => f.name));
+  }
 
-    // записываем имена файлов в форму (если нужно отобразить)
-    this.form.controls.photos.setValue(
-      this.selectedFiles.map(f => f.name)
-    );
+  /** Добавление файлов */
+  onSelect(ev: FileSelectEvent) {
+    /* spread-оператор вместо push, чтобы не получить вложенный массив */
+    this.selectedFiles = [...this.selectedFiles, ...ev.files as File[]];
+    this.refreshPhotosField();
+  }
+
+  /** Удаление одного файла («красный ×») */
+  onRemove(ev: FileRemoveEvent) {
+    this.selectedFiles = this.selectedFiles.filter(f => f !== ev.file);
+    this.refreshPhotosField();
+  }
+
+  /** Очистка всей очереди (иконка «корзина») */
+  onClear() {
+    this.selectedFiles = [];
+    this.refreshPhotosField();
   }
 
   /* ----------Подготовка FormData для POST ---------- */
@@ -140,14 +164,23 @@ export class NoticeComponent implements OnInit {
 
   /* --------- создание группы‑нарушения ----------- */
   private createViolationGroup(): FormGroup<INoticeViolationForm> {
-    return this.fb.group<INoticeViolationForm>({
-      place: this.fb.control(''),
-      element: this.fb.control(''),
-      subject: this.fb.control(''),
-      norm: this.fb.control(''),
+    const group = this.fb.group<INoticeViolationForm>({
+      place:    this.fb.control(''),
+      element:  this.fb.control(''),
+      subject:  this.fb.control(''),
+      norm:     this.fb.control(''),
       deadline: this.fb.control<string | Date>(''),
-      note: this.fb.control(''),
+      note:     this.fb.control(''),
+    }, { validators: this.deadlineNotBeforeNotice });
+
+    /* всплывающее alert-сообщение */
+    group.statusChanges.subscribe(status => {
+      if (status === 'INVALID' && group.errors?.['earlyDeadline']) {
+        alert('дата уведомления позже, чем Предлагаемый  срок устранения');
+      }
     });
+
+    return group;
   }
 
   addViolation() {

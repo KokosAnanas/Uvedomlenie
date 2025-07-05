@@ -139,6 +139,15 @@ export class RegistryComponent implements OnInit {
     this.router.navigate(['/notice'], { state: { notice: row } });
   }
 
+  deleteNotice(row: RegistryRow) {
+    if (confirm('Удалить уведомление?')) {
+      this.noticeApi.deleteNotice(row.noticeNum).subscribe(() => {
+        this.notices = this.notices.filter(n => n.noticeNum !== row.noticeNum);
+      });
+    }
+  }
+
+
 
   // photoSrc(fileName?: string | null) {
   //   return fileName ? API.uploads + `/${fileName}` : '';

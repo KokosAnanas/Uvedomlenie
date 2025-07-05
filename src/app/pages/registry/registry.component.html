@@ -117,7 +117,7 @@
 
             <ng-container *ngSwitchCase="'noticeNum'">
               {{ row.noticeNum }}
-              <div class="m-2">
+              <div class="m-2 flex flex-row gap-2">
                 <p-button
                   severity="secondary"
                   [raised]="true"
@@ -126,6 +126,15 @@
                   (click)="openNotice(row)"
                   size="large"
                   pTooltip="Открыть уведомление"
+                ></p-button>
+                <p-button
+                  severity="danger"
+                  [raised]="true"
+                  icon="pi pi-trash"
+                  class=""
+                  (click)="deleteNotice(row)"
+                  size="small"
+                  pTooltip="Удалить уведомление"
                 ></p-button>
               </div>
 

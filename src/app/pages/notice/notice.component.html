@@ -54,7 +54,7 @@
   </div>
 
   <!----------------Текст уведомления------------------------------------>
-<div style="max-width:45rem;">
+<div style="max-width:60rem;">
   <div class="flex align-items-start w-full gap-2 mb-2">
     <span class="align-self-start">Мною,&nbsp;</span>
     <textarea pTextarea
@@ -145,7 +145,12 @@
           [showIcon]="false"
           [firstDayOfWeek]="1"
           dateFormat="dd.mm.yy"
-          inputClass="border-0 outline-none text-center w-full"
+          [inputStyleClass]="
+      v.errors?.['earlyDeadline']
+        ? 'p-inputtext p-invalid border-2 border-red-500 outline-none text-center w-full'
+        : 'p-inputtext border border-gray-300 outline-none text-center w-full'
+    "
+          [class.p-invalid]="v.errors?.['earlyDeadline']"
           class="w-full">
         </p-datepicker>
       </td>
@@ -207,6 +212,8 @@
       name="photos"
       customUpload="true"
       (onSelect)="onSelect($event)"
+      (onRemove)="onRemove($event)"
+      (onClear)="onClear()"
       [showUploadButton]="false"
       [showCancelButton]="false"
       accept="image/*"

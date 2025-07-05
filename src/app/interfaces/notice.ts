@@ -58,3 +58,9 @@ export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'
 
 export type RegistryRow = INotice & INoticeViolation;
 
+export interface PreviewPhoto {
+  src:  string;     // путь для <img>
+  name: string;     // имя файла (без /uploads/)
+  isNew: boolean;   // true → файл ещё не на сервере
+}
+

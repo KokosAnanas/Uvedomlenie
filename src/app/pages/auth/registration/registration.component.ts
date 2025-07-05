@@ -21,8 +21,8 @@ export class RegistrationComponent implements OnInit  {
   password: string = '';
   repeatPassword: string = '';
   email: string = '';
-  isRemember: boolean = false;
-  labelText = 'Сохранить пользователя в хранилище';
+  // isRemember: boolean = false;
+  // labelText = 'Сохранить пользователя в хранилище';
 
   constructor(private userService: UserService,
               private messageService: MessageService) { }

@@ -44,7 +44,7 @@ import {FloatLabel} from 'primeng/floatlabel';
 import { ButtonModule } from 'primeng/button';
 import {ButtonGroupModule} from 'primeng/buttongroup';
 import {DropdownModule} from 'primeng/dropdown';
-import {FileUploadModule, FileSelectEvent, FileRemoveEvent} from 'primeng/fileupload';
+import {FileUploadModule, FileSelectEvent, FileRemoveEvent, FileUpload} from 'primeng/fileupload';
 
 interface ActionOpt { label: string; value: string; }
 
@@ -85,7 +85,7 @@ export class NoticeComponent implements OnInit {
   }
 
   /* ---------------- DOM -------------------- */
-  @ViewChild('printArea') printArea!: ElementRef<HTMLElement>;
+  @ViewChild('uploader') uploader!: FileUpload;
 
   /* ============== ОСНОВНАЯ ФОРМА =================== */
   form = this.fb.group<INoticeFormGroup>({
@@ -106,10 +106,6 @@ export class NoticeComponent implements OnInit {
   });
 
   /* ---------- загрузка файлов ---------- */
-  /** Обновляем поле `photos` формы, чтобы оно показывало только актуальные имена */
-  private refreshPhotosField() {
-    this.form.controls.photos.setValue(this.selectedFiles.map(f => f.name));
-  }
 
   /** Добавление файлов */
   onSelect(ev: FileSelectEvent) {
@@ -120,7 +116,10 @@ export class NoticeComponent implements OnInit {
 
   /** Удаление одного файла («красный ×») */
   onRemove(ev: FileRemoveEvent) {
-    this.selectedFiles = this.selectedFiles.filter(f => f !== ev.file);
+    const f = ev.file;
+    this.selectedFiles = this.selectedFiles.filter(
+      x => !(x.name === f.name && x.size === f.size && x.lastModified === f.lastModified)
+    );
     this.refreshPhotosField();
   }
 
@@ -128,6 +127,11 @@ export class NoticeComponent implements OnInit {
   onClear() {
     this.selectedFiles = [];
     this.refreshPhotosField();
+  }
+
+  /** Обновляем поле `photos` формы, чтобы оно показывало только актуальные имена */
+  private refreshPhotosField() {
+    this.form.controls.photos.setValue(this.selectedFiles.map(f => f.name));
   }
 
   /* ----------Подготовка FormData для POST ---------- */
@@ -259,6 +263,7 @@ export class NoticeComponent implements OnInit {
 
     try {
       await this.noticeService.create(this.buildFormData());
+
       alert('Уведомление сохранено.');
     } catch (e) {
       console.error(e);

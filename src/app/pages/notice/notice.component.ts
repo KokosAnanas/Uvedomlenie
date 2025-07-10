@@ -2,7 +2,6 @@
 import {
   Component,
   ViewChild,
-  ElementRef,
   inject, OnInit,
 } from '@angular/core';
 import {
@@ -16,7 +15,6 @@ import {
 import {CommonModule, DatePipe} from '@angular/common';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import { saveAs } from 'file-saver';
-
 import {
   AlignmentType,
   BorderStyle,
@@ -48,7 +46,6 @@ import {FileUploadModule, FileSelectEvent, FileRemoveEvent, FileUpload} from 'pr
 import {API} from '../../shared/api';
 import {createSignatureBlockTable} from '../../shared/docx/createSignatureBlockTable';
 import {createSignatureBlockTable2} from '../../shared/docx/createSignatureBlockTable2';
-
 interface ActionOpt { label: string; value: string; }
 
 /* ------------- Компонент --------------- */
@@ -84,10 +81,6 @@ export class NoticeComponent implements OnInit {
     }
     return null;
   };
-
-  private dateInput(val: string | Date): string {
-    return this.toDate(val).toISOString().split('T')[0];
-  }
 
   /* ---------------- DOM -------------------- */
   @ViewChild('uploader') uploader!: FileUpload;
@@ -125,7 +118,7 @@ export class NoticeComponent implements OnInit {
 
       runs.push(
         new ImageRun({
-          type: ext,                               // ←  добавили
+          type: ext,
           data: new Uint8Array(buf),
           transformation: { width: 500, height: 300 },
         }),
@@ -141,7 +134,7 @@ export class NoticeComponent implements OnInit {
 
       runs.push(
         new ImageRun({
-          type: ext,                               // ←  добавили
+          type: ext,
           data: new Uint8Array(buf),
           transformation: { width: 500, height: 300 },
         }),
@@ -151,11 +144,6 @@ export class NoticeComponent implements OnInit {
     return runs;
   }
 
-
-
-
-
-
   /** Добавление файлов */
   onSelect(ev: FileSelectEvent) {
     /* spread-оператор вместо push, чтобы не получить вложенный массив */
@@ -163,7 +151,7 @@ export class NoticeComponent implements OnInit {
     this.refreshPhotosField();
   }
 
-  /** Удаление одного файла («красный ×») */
+  /** Удаление одного файла ("красный х") */
   onRemove(ev: FileRemoveEvent) {
     const f = ev.file;
     this.selectedFiles = this.selectedFiles.filter(
@@ -178,7 +166,7 @@ export class NoticeComponent implements OnInit {
     this.refreshPhotosField();
   }
 
-  /** Обновляем поле `photos` формы, чтобы оно показывало только актуальные имена */
+  /** Обновление поля `photos` формы, чтобы оно показывало только актуальные имена */
   private refreshPhotosField() {
     const names = [
       ...this.existingPhotos,
@@ -321,7 +309,7 @@ export class NoticeComponent implements OnInit {
 
   /* ============ КНОПКИ ============== */
 
-  /** Кнопка «Сохранить в БД» */
+  /** Кнопка "Сохранить в БД" */
   // Подготовка FormData и отправка запроса POST
   async saveToDb() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
@@ -341,7 +329,7 @@ export class NoticeComponent implements OnInit {
     }
   }
 
-  /** Кнопка «Сохранить в DOC» */
+  /** Кнопка "Сохранить в DOC" */
   async saveAsDocx() {
     if (this.form.invalid) return;
     const images = await this.buildImageRuns();
@@ -406,7 +394,7 @@ export class NoticeComponent implements OnInit {
   private buildDocx(images: ImageRun[] = []): Document {
     const f = this.form.value;
 
-    /* ------------------------- Блок «Дата / Кому» на одной строке --------------------------------- */
+    /* ------------------------- Блок "Дата / Кому" на одной строке --------------------------------- */
     const dateToWhomTable = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },   // таблица во всю ширину
       borders: {                 // убираем все линии (делаем «невидимой»)
@@ -421,7 +409,7 @@ export class NoticeComponent implements OnInit {
       rows: [
         new TableRow({
           children: [
-            /* ─── левая ячейка: дата ─── */
+            /* --------- левая ячейка: дата ------ */
             new TableCell({
               verticalAlign: VerticalAlign.TOP,
               width: { size: 50, type: WidthType.PERCENTAGE },
@@ -435,7 +423,7 @@ export class NoticeComponent implements OnInit {
               ],
             }),
 
-            /* ─── правая ячейка: «Кому» ─── */
+            /* -------- правая ячейка: "Кому" --------- */
             new TableCell({
               verticalAlign: VerticalAlign.TOP,
               width: { size: 50, type: WidthType.PERCENTAGE },
@@ -619,7 +607,7 @@ export class NoticeComponent implements OnInit {
               border: {
                 bottom: {                         // нижняя граница параграфа
                   style: BorderStyle.SINGLE,      // сплошная
-                  size: 6,                        // 6 half-points ≈ 0,75 pt
+                  size: 6,                        // 6 half-points = 0,75 pt
                   color: 'auto',                  // чёрный по умолчанию
                 },
               },
@@ -682,7 +670,7 @@ export class NoticeComponent implements OnInit {
             violationsTable,
             new Paragraph({ text: ' ' }),
 
-            /* — Действия — */
+            /* --- Действия --- */
             new Paragraph({
               alignment: AlignmentType.JUSTIFIED,   // выравнивание по ширине
               indent: { firstLine: 567 },           // 10 мм ≈ 567 twip
@@ -709,7 +697,7 @@ export class NoticeComponent implements OnInit {
             }),
             new Paragraph({ text: ' ' }),
 
-            /* — Подписи — */
+            /* --- Подписи --- */
             new Paragraph({
               children: [new TextRun({ text: 'Подписи:'})],
             }),
@@ -726,7 +714,6 @@ export class NoticeComponent implements OnInit {
             }),
           ],
         },
-
 
         /* ---------- Вторая страница с фотографиями ---------- */
         ...(images.length
@@ -751,17 +738,11 @@ export class NoticeComponent implements OnInit {
             ],
           }]
           : []),
-
-
-
       ],
     });
   }
 
-
-
-
-  /* ─────────────── util: Header Cell ─────────────── */
+  /* ---------------- util: Header Cell ---------------- */
   private headerCell(text: string, widthPercentage: number): TableCell {
     return new TableCell({
       verticalAlign: VerticalAlign.CENTER,
@@ -774,9 +755,4 @@ export class NoticeComponent implements OnInit {
       ],
     });
   }
-
-
-
-
-
 }

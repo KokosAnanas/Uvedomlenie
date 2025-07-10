@@ -1,8 +1,8 @@
-/* Таблица целиком */
+
 table.violations {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;   // как в примере на скрине
+  font-size: 0.9rem;
 
   th,
   td {
@@ -22,7 +22,7 @@ table.violations {
     vertical-align: top;
   }
 
-  /* Узкие и широкие колонки (можно подогнать под макет) */
+  /* Узкие и широкие колонки */
   th:nth-child(1),
   td:nth-child(1) { width: 40px; }
   th:nth-child(3),
@@ -30,7 +30,6 @@ table.violations {
   th:nth-child(4),
   td:nth-child(4) { width: 140px; }
 
-  /* Курсивные подписи */
   .violation-label {
     font-style: italic;
     display: block;
@@ -50,8 +49,7 @@ table.violations {
     outline: none; // убираем синие рамки в Chrome
   }
 
-  /* Отключаем боковые бордеры у date-input,
-     чтобы рамка ячейки оставалась единственной */
+  /* Отключаем боковые бордеры у date-input, чтобы рамка ячейки оставалась единственной */
   input[type='date'] {
     border: 0;
     outline: none;

@@ -1,11 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
-import {CreateNoticeDto, INotice} from '../interfaces/notice';
+import {INotice} from '../interfaces/notice';
 import {API} from '../shared/api';
-
-interface Notice {
-}
 
 @Injectable({ providedIn: 'root' })
 export class NoticeService {
@@ -16,10 +13,8 @@ export class NoticeService {
     return firstValueFrom(this.http.post<void>(API.notices, dto));
   }
   getNotices(): Observable<INotice[]> {
-    // Выполняем GET-запрос к бэкенду (URL и тип могут отличаться при настройке API)
+    // Выполняем GET-запрос к бэкенду
     return this.http.get<INotice[]>(API.notices, {
-      /* если /notices защищён JWT, раскомментировать: */
-      // headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
   }
 
@@ -31,7 +26,7 @@ export class NoticeService {
 
   /** PUT /api/notices/:noticeNum */
   updateNotice(noticeNum: string, dto: FormData): Promise<void> {
-    const encoded = encodeURIComponent(noticeNum);          // ← добавили
+    const encoded = encodeURIComponent(noticeNum);
     return firstValueFrom(this.http.put<void>(`${API.notices}/${encoded}`, dto));
   }
 }

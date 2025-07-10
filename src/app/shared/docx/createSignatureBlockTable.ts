@@ -9,11 +9,6 @@ import {
   WidthType,
 } from "docx";
 
-/**
- * Возвращает таблицу блока «Подписи» без вертикальных перегородок в узких
- * промежуточных столбцах (2‑м и 4‑м). Видимы только нижние линии 1, 3, 5‑го
- * столбцов первой строки.
- */
 export function createSignatureBlockTable(): Table {
   const fnBottomBorder = (visible: boolean) =>
     visible

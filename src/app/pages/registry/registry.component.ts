@@ -1,4 +1,3 @@
-// src/app/pages/registry/registry.component.ts
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { TableModule } from 'primeng/table';
@@ -70,7 +69,7 @@ export class RegistryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    /* 15 колонок (INotice + INoticeViolation) */
+    /* 16 колонок (INotice + INoticeViolation) */
     this.cols = [
       { field: 'orgName', header: 'Организация' },
       { field: 'noticeNum', header: '№ уведомл.' },
@@ -91,7 +90,7 @@ export class RegistryComponent implements OnInit {
     ];
     this.selectedColumns = [...this.cols];
 
-    /* Загрузка и «расплющивание» нарушений */
+    /* Загрузка и "расплющивание" нарушений */
     this.noticeApi.getNotices().subscribe((data: INotice[]) => {
       this.notices = data.flatMap((n) =>
         n.violations?.length
@@ -113,7 +112,6 @@ export class RegistryComponent implements OnInit {
     input.value = '';
     this.table.filterGlobal('', 'contains');
   }
-
 
   /** Показать ли ячейку? */
   displayCell(field: keyof RegistryRow, firstOfGroup: boolean) {
@@ -146,5 +144,4 @@ export class RegistryComponent implements OnInit {
       });
     }
   }
-
 }

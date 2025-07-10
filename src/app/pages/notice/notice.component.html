@@ -1,5 +1,5 @@
 
-<div style="max-width:60rem;" #printArea class="shadow-4 p-5 max-w-60rem" [formGroup]="form">
+<div style="max-width:60rem;" class="shadow-4 p-5 max-w-60rem" [formGroup]="form">
 
   <div class="card flex justify-content-center">
     <div class="flex flex-column gap-1 align-items-center">
@@ -34,7 +34,7 @@
       </p-datepicker>
     </header>
 
-    <!-- правая колонка — «Кому» (+ переносы строк в textarea) -->
+    <!----------- правая колонка — «Кому» ------------>
     <div style="flex:1 1 70%">
       <p-floatlabel variant="on">
         <textarea pTextarea id="over_label" rows="3"
@@ -138,7 +138,7 @@
                   formControlName="norm" class="violation-input"></textarea>
       </td>
 
-      <!-- Срок -->
+      <!----------- Срок ------------->
       <td class="text-center">
         <p-datepicker
           formControlName="deadline"

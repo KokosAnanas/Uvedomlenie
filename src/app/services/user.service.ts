@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { IUser, IUserRegister } from '../interfaces/users';
 import { HttpClient } from '@angular/common/http';
 import { API } from '../shared/api';
-import {map, Observable, tap} from 'rxjs';          // ✨ tap
+import {map, tap} from 'rxjs';
 
 export const LOCAL_STORAGE_TOKEN = 'access_token';
 
@@ -19,7 +19,7 @@ export class UserService {
     return this.http
       .post<{ access_token: string }>(API.registration, dto)      // <-- BACK отправляет {access_token}
       .pipe(
-        tap(res => this.storeToken(res.access_token)),            // 💾
+        tap(res => this.storeToken(res.access_token)),
         map(res => res.access_token)
       );
   }
@@ -29,7 +29,7 @@ export class UserService {
     return this.http
       .post<{ access_token: string }>(API.auth(credentials.login), credentials)
       .pipe(
-        tap(res => this.storeToken(res.access_token)),            // 💾
+        tap(res => this.storeToken(res.access_token)),
         map(res => res.access_token)
       );
   }
@@ -37,11 +37,6 @@ export class UserService {
   /* ---------- токен и пользователь ---------- */
   get token(): string | null {
     return this.currentToken ?? localStorage.getItem(LOCAL_STORAGE_TOKEN);
-  }
-
-  logout(): void {
-    this.storeToken(null);
-    this.setUser(null);
   }
 
   /* ---------- прочее, как было ---------- */

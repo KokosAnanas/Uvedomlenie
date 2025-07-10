@@ -3,16 +3,16 @@ import {FormArray, FormControl, FormGroup} from '@angular/forms';
 export interface INotice {
   orgName:    string;
   noticeNum:  string;
-  noticeDate: string | Date;  // string
+  noticeDate: string | Date;
   toWhom:     string;
   copyTo:     string;
   specialist: string;
-  present?:    string;               //?
+  present?:    string;
   objectName: string;
   workType:   string;
   violations: INoticeViolation[];
   actions:    string;
-  contacts?:   string;                   //?
+  contacts?:   string;
   photos: string[];
 }
 
@@ -21,14 +21,14 @@ export interface INoticeViolation {
   element: string;
   subject: string;
   norm: string;
-  deadline: string | Date;       // string
-  note?: string | null;                   //?
+  deadline: string | Date;
+  note?: string | null;
 }
 
 export type INoticeFormGroup = {
   orgName:     FormControl<string>;
   noticeNum:   FormControl<string>;
-  noticeDate:  FormControl<string | Date>;          // ISO-строка
+  noticeDate:  FormControl<string | Date>;
   toWhom:      FormControl<string>;
   copyTo:      FormControl<string>;
   specialist:  FormControl<string>;
@@ -56,11 +56,4 @@ export interface CreateNoticeDto extends Omit<INotice, 'violations'|'noticeDate'
   photos: string[];
 }
 
-export type RegistryRow = INotice & INoticeViolation;
-
-export interface PreviewPhoto {
-  src:  string;     // путь для <img>
-  name: string;     // имя файла (без /uploads/)
-  isNew: boolean;   // true → файл ещё не на сервере
-}
 

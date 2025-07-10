@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import {InputSwitch} from 'primeng/inputswitch';
 import {RouterLink} from '@angular/router';
 import {ButtonDirective} from 'primeng/button';
-import {MenuItem, PrimeTemplate} from 'primeng/api';
+import {MenuItem} from 'primeng/api';
 import {Menubar} from 'primeng/menubar';
 
 @Component({

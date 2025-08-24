@@ -24,6 +24,8 @@ import {ImageModule} from 'primeng/image';
 import {API} from '../../shared/api';
 import {Router} from '@angular/router';
 import {Tooltip} from 'primeng/tooltip';
+import {ConfirmationService} from 'primeng/api';
+import {ConfirmDialog} from 'primeng/confirmdialog';
 
 type RegistryRow = INotice & INoticeViolation;
 
@@ -45,7 +47,9 @@ type RegistryRow = INotice & INoticeViolation;
     DatePipe,
     StyleClass,
     Tooltip,
+    ConfirmDialog,
   ],
+  providers: [ConfirmationService],
   templateUrl: './registry.component.html',
 })
 export class RegistryComponent implements OnInit {
@@ -66,6 +70,7 @@ export class RegistryComponent implements OnInit {
   constructor(
     private noticeApi: NoticeService,
     private router: Router,
+    private confirmation: ConfirmationService
   ) {}
 
   ngOnInit(): void {
@@ -138,10 +143,17 @@ export class RegistryComponent implements OnInit {
   }
 
   deleteNotice(row: RegistryRow) {
-    if (confirm('Удалить уведомление?')) {
-      this.noticeApi.deleteNotice(row.noticeNum).subscribe(() => {
-        this.notices = this.notices.filter(n => n.noticeNum !== row.noticeNum);
-      });
-    }
+    this.confirmation.confirm({
+      message: 'Удалить уведомление?',
+      header: 'Подтверждение',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Да',
+      rejectLabel: 'Отмена',
+      accept: () => {
+        this.noticeApi.deleteNotice(row.noticeNum).subscribe(() => {
+          this.notices = this.notices.filter(n => n.noticeNum !== row.noticeNum);
+        });
+      }
+    });
   }
 }

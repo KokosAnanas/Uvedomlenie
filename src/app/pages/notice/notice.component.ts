@@ -46,6 +46,8 @@ import {FileUploadModule, FileSelectEvent, FileRemoveEvent, FileUpload} from 'pr
 import {API} from '../../shared/api';
 import {createSignatureBlockTable} from '../../shared/docx/createSignatureBlockTable';
 import {createSignatureBlockTable2} from '../../shared/docx/createSignatureBlockTable2';
+import {Toast} from 'primeng/toast';
+import {MessageService} from 'primeng/api';
 interface ActionOpt { label: string; value: string; }
 
 /* ------------- Компонент --------------- */
@@ -54,7 +56,8 @@ interface ActionOpt { label: string; value: string; }
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule,
     HttpClientModule, DatePicker, InputText, FileUploadModule,
-    TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule, DropdownModule],
+    TextareaModule, FloatLabel, ButtonModule, ButtonGroupModule, DropdownModule, Toast],
+  providers: [MessageService],
   templateUrl: './notice.component.html',
   styleUrls: ['./notice.component.scss'],
 })
@@ -67,6 +70,7 @@ export class NoticeComponent implements OnInit {
   private selectedFiles: File[] = [];
   existingPhotos: string[] = [];
   private editNoticeNum: string | null = null;
+  private messageService = inject(MessageService)
 
   private toDate(val: string | Date): Date {
     return val instanceof Date ? val : new Date(val);
@@ -218,10 +222,14 @@ export class NoticeComponent implements OnInit {
       note:     this.fb.control(''),
     }, { validators: this.deadlineNotBeforeNotice });
 
-    /* всплывающее alert-сообщение */
+    /* всплывающее сообщение */
     group.statusChanges.subscribe(status => {
       if (status === 'INVALID' && group.errors?.['earlyDeadline']) {
-        alert('дата уведомления позже, чем Предлагаемый  срок устранения');
+        this.messageService.add({
+          severity: 'warn',
+          summary : 'Некорректная дата',
+          detail  : 'Дата уведомления позже, чем предлагаемый срок устранения'
+        });
       }
     });
 
@@ -322,10 +330,18 @@ export class NoticeComponent implements OnInit {
         await this.noticeService.create(data);
       }
 
-      alert('Уведомление сохранено.');
+      this.messageService.add({
+        severity: 'success',
+        summary : 'Готово',
+        detail  : 'Уведомление сохранено в Базе данных'
+      });
     } catch (e) {
       console.error(e);
-      alert('Ошибка при сохранении.');
+      this.messageService.add({
+        severity: 'error',
+        summary : 'Ошибка',
+        detail  : 'Не удалось сохранить'
+      });
     }
   }
 
@@ -724,9 +740,14 @@ export class NoticeComponent implements OnInit {
             },
             children: [
               new Paragraph({
-                alignment: AlignmentType.CENTER,
+                alignment: AlignmentType.RIGHT,
                 spacing: { after: 300 },
-                children: [ new TextRun({ text: 'Фотографии нарушения', bold: true }) ],
+                children: [
+                  new TextRun({
+                    text: `Приложение к уведомлению № ${f.noticeNum} от ${this.datePipe.transform(f.noticeDate, 'dd.MM.yyyy')}`,
+                    bold: true,
+                  }),
+                ],
               }),
               ...images.map(img =>
                 new Paragraph({

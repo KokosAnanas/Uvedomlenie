@@ -32,7 +32,9 @@ export const appConfig: ApplicationConfig = {
           'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
         dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
         clear: 'Очистить',
-        today: 'Текущая дата'
+        today: 'Текущая дата',
+        accept: 'Да',
+        reject: 'Отмена',
       }
     }),
     {
@@ -41,6 +43,7 @@ export const appConfig: ApplicationConfig = {
       deps: [ConfigService],
       multi: true
     },
+
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ]
 };

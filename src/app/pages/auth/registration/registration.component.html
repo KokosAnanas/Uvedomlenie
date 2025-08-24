@@ -35,6 +35,7 @@
     <span class="mx-3">Email</span>
     <input
       type="email"
+      [ngClass]="{'input-error': !email || email.length < 3 }"
       pInputText
       [(ngModel)]="email"
     />
